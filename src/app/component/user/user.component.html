@@ -1,0 +1,94 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">User Management</h1>
+    <button class="btn btn-primary">Add New User</button>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="flex gap-4 mb-6">
+    <div class="form-control">
+      <input
+        type="text"
+        placeholder="Search users..."
+        class="input input-bordered w-64"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <select class="select select-bordered" [(ngModel)]="selectedRole">
+      <option value="">All Roles</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+
+    <select class="select select-bordered" [(ngModel)]="selectedStatus">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+
+  <!-- Users Table -->
+  <div class="overflow-x-auto">
+    <table class="table w-full">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Email</th>
+          <th>Nationality</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filterUsers()">
+          <td>{{ user.user_id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.gender }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.nationality }}</td>
+          <td>
+            <div class="badge badge-primary">
+              {{ user.role }}
+            </div>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button
+                class="btn btn-sm btn-info"
+                (click)="viewUserDetails(user)"
+              >
+                View
+              </button>
+              <button class="btn btn-sm btn-warning" (click)="editUser(user)">
+                Edit
+              </button>
+              <button
+                class="btn btn-sm btn-error"
+                (click)="resetPassword(user.user_id)"
+              >
+                Reset Password
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<dialog id="user_details_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">User Details</h3>
+    <!-- Add user details content here -->
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+</dialog>

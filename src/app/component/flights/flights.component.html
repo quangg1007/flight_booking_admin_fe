@@ -1,0 +1,112 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Flight Management</h1>
+    <button class="btn btn-primary" (click)="addFlight()">
+      Add New Flight
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <input
+      type="text"
+      placeholder="Search flights..."
+      class="input input-bordered"
+      [(ngModel)]="searchTerm"
+    />
+
+    <select class="select select-bordered" [(ngModel)]="selectedAirline">
+      <option value="">All Airlines</option>
+      <option *ngFor="let airline of airlines" [value]="airline">
+        {{ airline }}
+      </option>
+    </select>
+
+    <select class="select select-bordered" [(ngModel)]="selectedStatus">
+      <option value="">All Statuses</option>
+      <option value="on_time">On Time</option>
+      <option value="delayed">Delayed</option>
+      <option value="canceled">Canceled</option>
+    </select>
+
+    <input
+      type="date"
+      class="input input-bordered"
+      [(ngModel)]="selectedDate"
+    />
+  </div>
+
+  <!-- Flights Table -->
+  <div class="overflow-x-auto">
+    <table class="table w-full">
+      <thead>
+        <tr>
+          <th>Flight ID</th>
+          <th>Airline</th>
+          <th>Route</th>
+          <th>Schedule</th>
+          <th>Capacity</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let flight of filterFlights()">
+          <td>{{ flight.flight_id }}</td>
+          <td>{{ flight.airline }}</td>
+          <td>{{ flight.departure }} → {{ flight.destination }}</td>
+          <td>
+            <div>Dep: {{ flight.departure_time | date : "short" }}</div>
+            <div>Arr: {{ flight.arrival_time | date : "short" }}</div>
+          </td>
+          <td>
+            {{ flight.available_seats }}/{{ flight.capacity }}
+            <div class="text-sm text-gray-500">
+              {{
+                ((flight.available_seats / flight.capacity) * 100).toFixed(0)
+              }}% available
+            </div>
+          </td>
+          <td>
+            <select
+              class="select select-bordered select-sm"
+              [(ngModel)]="flight.status"
+              (change)="updateFlightStatus(flight.flight_id, flight.status)"
+            >
+              <option value="on_time">On Time</option>
+              <option value="delayed">Delayed</option>
+              <option value="canceled">Canceled</option>
+            </select>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-sm btn-info" (click)="editFlight(flight)">
+                Edit
+              </button>
+              <button
+                class="btn btn-sm btn-error"
+                (click)="deleteFlight(flight.flight_id)"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add/Edit Flight Modal -->
+<dialog id="flight_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Flight Details</h3>
+    <!-- Add flight form here -->
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+</dialog>
