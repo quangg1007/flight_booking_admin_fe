@@ -7,14 +7,17 @@
 
   <!-- Filters and Search -->
   <div class="flex gap-4 mb-6">
-    <div class="form-control">
-      <input
-        type="text"
-        placeholder="Search users..."
-        class="input input-bordered w-64"
-        [(ngModel)]="searchTerm"
-      />
-    </div>
+    <form [formGroup]="searchUserForm">
+      <div class="form-control">
+        <input
+          type="text"
+          formControlName="search"
+          name="search"
+          placeholder="Search users..."
+          class="input input-bordered w-64"
+        />
+      </div>
+    </form>
 
     <select class="select select-bordered" [(ngModel)]="selectedRole">
       <option value="">All Roles</option>
@@ -35,24 +38,24 @@
       <thead>
         <tr>
           <th>User ID</th>
-          <th>Name</th>
-          <th>Gender</th>
+          <th>First Name</th>
+          <th>Last Name</th>
           <th>Email</th>
-          <th>Nationality</th>
-          <th>Role</th>
+          <th>Phone</th>
+          <th>Timezone</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filterUsers()">
+        <tr *ngFor="let user of userResponse().users">
           <td>{{ user.user_id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.gender }}</td>
+          <td>{{ user.first_name }}</td>
+          <td>{{ user.last_name }}</td>
           <td>{{ user.email }}</td>
-          <td>{{ user.nationality }}</td>
+          <td>{{ user.phone_number }}</td>
           <td>
             <div class="badge badge-primary">
-              {{ user.role }}
+              {{ user.timezone }}
             </div>
           </td>
           <td>
