@@ -7,11 +7,17 @@ import { FlightsComponent } from './flights/flights.component';
 import { NotificationComponent } from './notification/notification.component';
 import { BookingComponent } from '../booking-page/booking/booking.component';
 import { DashboardPageComponent } from './dashboard-page/dashboard-page.component';
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { RoleGuard } from 'src/app/guard/role.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: DashboardPageComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRole: 'admin',
+    },
     children: [
       {
         path: '',

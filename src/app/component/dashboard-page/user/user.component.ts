@@ -1,6 +1,15 @@
-import { Component, computed, effect, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 import { UserService } from 'src/app/services/user.service';
 
 export interface UserResponse {
@@ -24,44 +33,80 @@ export interface User {
 })
 export class UserComponent implements OnInit {
   userResponse = signal<UserResponse>({} as UserResponse);
+
+  resetPasswordDrawer = viewChild<ElementRef>('drawerResetPassword');
+
   selectedRole: string = '';
   selectedStatus: string = '';
 
   searchUserForm!: FormGroup;
 
+  resetPasswordForm!: FormGroup;
+  selectedUserId: string = '';
+
+  successMessages: string[] = [];
+  errorMessages: string[] = [];
+
   constructor(
     private _fb: FormBuilder,
-
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private authService: AuthService
+  ) {
+    this.initResetPasswordForm();
+    effect(() => {
+      console.log('modal', this.resetPasswordDrawer());
+    });
+  }
 
   ngOnInit(): void {
     this.initSearchUserForm();
     this.userService.getAllUsers().subscribe((users) => {
       this.userResponse.set(users);
-      this.setUpSearchForm();
+      this.setUpSearch();
     });
   }
 
   initSearchUserForm() {
     this.searchUserForm = this._fb.group({
       search: [''],
+      role: [''],
     });
   }
 
-  setUpSearchForm() {
+  setUpSearch() {
+    this.setUpSearchByCriteria('search');
+    this.setUpSearchByCriteria('role');
+  }
+
+  setUpSearchByCriteria(field: string) {
     this.searchUserForm
-      .get('search')!
+      .get(field)!
       .valueChanges.pipe(
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((value) => {
-          if (!value || value.trim().length === 0) {
-            return this.userService.getAllUsers();
-          }
-          if (value.length >= 3) {
-            const formattedValue = value.replace(/\s+/g, '-').toLowerCase();
-            return this.userService.searchUserByEmailOrFullname(formattedValue);
+          let role: string = '';
+          let fullNameOrEmail: string = '';
+          if (field === 'role') {
+            if (!value) {
+              return this.userService.getAllUsers();
+            } else {
+              role = value;
+              return this.userService.searchUserByRole(role);
+            }
+          } else if (field === 'search') {
+            fullNameOrEmail = value;
+            if (!fullNameOrEmail || fullNameOrEmail.trim().length === 0) {
+              return this.userService.getAllUsers();
+            }
+            if (fullNameOrEmail.length >= 3) {
+              const formattedValue = fullNameOrEmail
+                .replace(/\s+/g, '-')
+                .toLowerCase();
+              return this.userService.searchUserByEmailOrFullname(
+                formattedValue
+              );
+            }
           }
           return [];
         })
@@ -72,8 +117,56 @@ export class UserComponent implements OnInit {
       });
   }
 
+  initResetPasswordForm() {
+    this.resetPasswordForm = this._fb.group(
+      {
+        password: ['', Validators.required],
+        confirmPassword: ['', Validators.required],
+      },
+      {
+        validator: this.passwordMatchValidator,
+      }
+    );
+  }
+
+  passwordMatchValidator(g: FormGroup) {
+    return g.get('password')?.value === g.get('confirmPassword')?.value
+      ? null
+      : { mismatch: true };
+  }
+
   resetPassword(userId: string) {
-    // Implement password reset logic
+    this.selectedUserId = userId;
+    this.resetPasswordForm.reset();
+  }
+
+  closeResetDrawer() {
+    this.selectedUserId = '';
+    this.resetPasswordForm.reset();
+    this.resetPasswordDrawer()!.nativeElement.checked = false;
+  }
+
+  confirmResetPassword() {
+    if (this.resetPasswordForm.valid) {
+      const newPassword = this.resetPasswordForm.get('password')?.value;
+      // Call your API to reset password
+      console.log('Resetting password for user:', this.selectedUserId);
+      console.log('New password:', newPassword);
+
+      this.authService
+        .updateUserPassword(newPassword, this.selectedUserId)
+        .subscribe(
+          (response) => {
+            console.log('Password reset successful:', response);
+            this.showSuccessToast('Password reset successfully');
+          },
+          (error) => {
+            console.error('Password reset failed:', error);
+            this.showErrorToast('Failed to reset password. Please try again.');
+          }
+        );
+      this.closeResetDrawer();
+    }
   }
 
   updateUserRole(userId: string, newRole: string) {
@@ -86,5 +179,19 @@ export class UserComponent implements OnInit {
 
   viewUserDetails(user: User) {
     // Implement view details logic
+  }
+
+  showSuccessToast(message: string) {
+    this.successMessages.push(message);
+    setTimeout(() => {
+      this.successMessages.pop();
+    }, 3000);
+  }
+
+  showErrorToast(message: string) {
+    this.errorMessages.push(message);
+    setTimeout(() => {
+      this.errorMessages.pop();
+    }, 3000);
   }
 }

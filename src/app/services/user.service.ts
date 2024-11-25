@@ -33,6 +33,12 @@ export class UserService {
     });
   }
 
+  searchUserByRole(role: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users/search/role`, {
+      params: { role },
+    });
+  }
+
   getUserById(userId: string): Observable<UserModel> {
     return this.http.get<UserModel>(`${this.apiUrl}/users/${userId}`);
   }
@@ -58,5 +64,17 @@ export class UserService {
 
   deleteUser(userId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/users/${userId}`);
+  }
+
+  login(user: UserModel): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/login`, user, {
+      withCredentials: true,
+    });
+  }
+
+  logout(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/logout`, email, {
+      withCredentials: true,
+    });
   }
 }

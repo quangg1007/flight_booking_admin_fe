@@ -100,4 +100,11 @@ export class AuthService {
     const tokenPayload = JSON.parse(atob(token.split('.')[1]));
     return of(tokenPayload);
   }
+
+  updateUserPassword(password: string, user_id: string) {
+    return this.http.patch<any>(`${this.apiUrl}/auth/password/reset`, {
+      password: password,
+      user_id: user_id,
+    });
+  }
 }

@@ -7,6 +7,9 @@ import {
   RouterModule,
   RouterOutlet,
 } from '@angular/router';
+import { tap } from 'rxjs';
+import { TokenService } from 'src/app/services/token.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -48,7 +51,11 @@ export class SidebarComponent {
       label: 'Bookings',
     },
   ];
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private tokenService: TokenService,
+    private userService: UserService
+  ) {}
 
   ngOnInit() {}
 
@@ -56,5 +63,22 @@ export class SidebarComponent {
     this.router.navigate([path]);
   }
 
-  logout() {}
+  logout() {
+    const token = this.tokenService.getAccessToken();
+    let tokenPayload;
+    if (token) {
+      tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    }
+    const email = tokenPayload.email;
+    console.log(tokenPayload);
+    this.userService
+      .logout(email)
+      .pipe(
+        tap(() => {
+          this.tokenService.clearTokens();
+          window.location.reload();
+        })
+      )
+      .subscribe();
+  }
 }
