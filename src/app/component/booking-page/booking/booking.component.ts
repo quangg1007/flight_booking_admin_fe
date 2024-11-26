@@ -39,15 +39,13 @@ export class BookingComponent {
   setUpUpcomingPastBookings() {
     this.bookingService.getUpcomingBookings(0).subscribe((bookingData) => {
       this.upcomingBookings.set(bookingData.bookings);
-      this.totalPageUpcomming.set(
-        Math.round(bookingData.total / this.pageSize)
-      );
+      this.totalPageUpcomming.set(Math.ceil(bookingData.total / this.pageSize));
     });
     this.bookingService
       .getPastBookings(0, this.currentPagePast(), this.pageSize)
       .subscribe((bookingData) => {
         this.pastBookings.set(bookingData.bookings);
-        this.totalPagePast.set(Math.round(bookingData.total / this.pageSize));
+        this.totalPagePast.set(Math.ceil(bookingData.total / this.pageSize));
       });
   }
 
