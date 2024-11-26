@@ -5,7 +5,6 @@ import {
   effect,
   ElementRef,
   input,
-  OnInit,
   output,
   signal,
   viewChildren,
@@ -32,83 +31,20 @@ import { BookingDetailComponent } from '../booking-detail/booking-detail.compone
 })
 export class UpcommingBookingComponent {
   cancelButtons = viewChildren<ElementRef<HTMLButtonElement>>('cancelBtn');
-  bookings = input.required<any[]>();
-  // bookings = signal<any[]>([
-  //   {
-  //     booking_id: 98,
-  //     booking_date: '2024-11-16T09:01:18.000Z',
-  //     status: 'complete',
-  //     total_price: "'$'112",
-  //     noPassengers: 1,
-  //     passengers: [],
-  //     itinerary: {
-  //       itinerary_id: '12071-2410300140--32179-0-12409-2410300820',
-  //       raw_price: '112.90',
-  //       formatted_price: "'$'112",
-  //       is_self_transfer: false,
-  //       is_protected_self_transfer: false,
-  //       is_change_allowed: false,
-  //       is_cancellation_allowed: false,
-  //       score: '0.888000',
-  //       legs: [
-  //         {
-  //           leg_id: '12071-2410300140--32179-0-12409-2410300820',
-  //           duration_in_minutes: 280,
-  //           stop_count: 0,
-  //           is_smallest_stops: false,
-  //           departure_time: '2024-10-29T18:40:00.000Z',
-  //           arrival_time: '2024-10-30T01:20:00.000Z',
-  //           time_delta_in_days: 0,
-  //           origin_iata: 'HAN',
-  //           origin_name: 'Hanoi',
-  //           destination_iata: 'ICN',
-  //           destination_name: 'Incheon International Airport',
-  //           day_change: 0,
-  //           segments: [
-  //             {
-  //               flight_id: '12071-12409-2410300140-2410300820--32179',
-  //               flight_number: '7C2804',
-  //               depature_time: '2024-10-29T18:40:00.000Z',
-  //               arrival_time: '2024-10-30T01:20:00.000Z',
-  //               origin_name: 'Hanoi',
-  //               destination_name: 'Incheon International Airport',
-  //               duration_in_minutes: 280,
-  //               aircraft: {
-  //                 aircraft_id: -32179,
-  //                 name: 'Jeju Air',
-  //                 alternateId: '78',
-  //                 displayCode: '7C',
-  //                 logoUrl:
-  //                   'https://content.skyscnr.com/097ed926a23c8d50d0ce5fe27d62cb3c/ai-template-jeju-air-thumb-1-xxxhdpi.png',
-  //               },
-  //               departureAirport: {
-  //                 iata: 'HAN',
-  //                 name: 'Noi Bai International Airport',
-  //               },
-  //               arrivalAirport: {
-  //                 iata: 'ICN',
-  //                 name: 'Incheon International Airport',
-  //               },
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     user: {
-  //       user_id: 13,
-  //       first_name: 'Quang',
-  //       last_name: 'Minh',
-  //       email: 'quangphammrr19@gmail.com',
-  //       phone_number: '0911348859',
-  //     },
-  //   },
-  // ]);
   selectedBookingId: string | null = null;
   selectedBooking: any;
   selectedFormatedDepDes: any;
 
   bookingsChanged = output<string>();
   BookingDetailChange = output<any>();
+
+  bookings = input.required<any[]>();
+  totalBookings = input.required<number>();
+  currentPageChange = output<number>();
+
+  pageSize = input.required<number>();
+  currentPage = input.required<number>();
+  currentPageUpcomingBooking = signal<number>(1);
 
   formatedDepDes = computed(() => {
     return this.bookings().map((booking: any) => {
@@ -178,5 +114,16 @@ export class UpcommingBookingComponent {
       },
       booking_id: this.selectedBookingId,
     });
+  }
+
+  changePage(page: number) {
+    this.currentPageUpcomingBooking.update(() => page);
+    this.currentPageChange.emit(page);
+  }
+
+  getPagesArray(): number[] {
+    return Array(this.totalBookings())
+      .fill(0)
+      .map((_, i) => i);
   }
 }

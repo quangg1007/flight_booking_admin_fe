@@ -23,6 +23,7 @@ export interface User {
   first_name: string;
   last_name: string;
   phone_number: string;
+  role: string;
   timezone: string;
 }
 
@@ -35,6 +36,7 @@ export class UserComponent implements OnInit {
   userResponse = signal<UserResponse>({} as UserResponse);
 
   resetPasswordDrawer = viewChild<ElementRef>('drawerResetPassword');
+  viewBookingsDrawer = viewChild<ElementRef>('drawerViewBookings');
 
   selectedRole: string = '';
   selectedStatus: string = '';
@@ -47,15 +49,14 @@ export class UserComponent implements OnInit {
   successMessages: string[] = [];
   errorMessages: string[] = [];
 
+  userBookings: any[] = [];
+
   constructor(
     private _fb: FormBuilder,
     private userService: UserService,
     private authService: AuthService
   ) {
     this.initResetPasswordForm();
-    effect(() => {
-      console.log('modal', this.resetPasswordDrawer());
-    });
   }
 
   ngOnInit(): void {
@@ -136,6 +137,7 @@ export class UserComponent implements OnInit {
   }
 
   resetPassword(userId: string) {
+    console.log('Resetting password for user:', userId);
     this.selectedUserId = userId;
     this.resetPasswordForm.reset();
   }
@@ -144,6 +146,10 @@ export class UserComponent implements OnInit {
     this.selectedUserId = '';
     this.resetPasswordForm.reset();
     this.resetPasswordDrawer()!.nativeElement.checked = false;
+  }
+
+  closeViewDrawer() {
+    this.viewBookingsDrawer()!.nativeElement.checked = false;
   }
 
   confirmResetPassword() {
@@ -169,16 +175,8 @@ export class UserComponent implements OnInit {
     }
   }
 
-  updateUserRole(userId: string, newRole: string) {
-    // Implement role update logic
-  }
-
-  editUser(user: User) {
+  editRoleUser(user: User) {
     // Implement edit user logic
-  }
-
-  viewUserDetails(user: User) {
-    // Implement view details logic
   }
 
   showSuccessToast(message: string) {
@@ -193,5 +191,9 @@ export class UserComponent implements OnInit {
     setTimeout(() => {
       this.errorMessages.pop();
     }, 3000);
+  }
+
+  viewUserBookings(user_id: string) {
+    console.log('Viewing bookings for user:', user_id);
   }
 }

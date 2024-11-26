@@ -1,19 +1,21 @@
-import { Component, computed, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { ShortDatePipe } from 'src/app/pipe/short-date.pipe';
 import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 import { LegDetailComponent } from '../../common/leg-detail/leg-detail.component';
-import {
-  CommonModule,
-  NgComponentOutlet,
-  NgOptimizedImage,
-} from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-past-booking',
   standalone: true,
   imports: [
     CommonModule,
-    NgComponentOutlet,
     ShortDatePipe,
     TimeFormatPipe,
     NgOptimizedImage,
@@ -24,7 +26,15 @@ import {
 })
 export class PastBookingComponent {
   activeTab = input<'upcoming' | 'past'>();
+
   bookings = input.required<any[]>();
+  totalBookings = input.required<number>();
+
+  currentPageChange = output<number>();
+
+  pageSize = input.required<number>();
+  currentPage = input.required<number>();
+  currentPagePastBooking = signal<number>(1);
 
   formatedDepDes = computed(() => {
     return this.bookings().map((booking: any) => {
@@ -48,11 +58,24 @@ export class PastBookingComponent {
 
   expandedIndex: number = -1;
 
+  ngOnInit() {
+    effect(() => {
+      console.log('currentPage', this.currentPage());
+    });
+  }
+
   toggleFlightDetails(index: number) {
     this.expandedIndex = this.expandedIndex === index ? -1 : index;
   }
 
-  ngOnInit() {
-    console.log(JSON.parse(this.bookings()[0]));
+  changePage(page: number) {
+    this.currentPagePastBooking.update(() => page);
+    this.currentPageChange.emit(page);
+  }
+
+  getPagesArray(): number[] {
+    return Array(this.totalBookings())
+      .fill(0)
+      .map((_, i) => i);
   }
 }

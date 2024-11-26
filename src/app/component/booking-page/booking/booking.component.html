@@ -18,15 +18,23 @@
   <!-- Upcoming Bookings Table -->
   <app-upcomming-booking
     [bookings]="upcomingBookings()"
+    [totalBookings]="totalPageUpcomming()"
+    [pageSize]="pageSize"
+    [currentPage]="currentPageUpcoming()"
     (bookingsChanged)="deleteBooking($event)"
     (BookingDetailChange)="bookingDetailChange($event)"
+    (currentPageChange)="changeUpcomingBookingPage($event)"
     [activeTab]="activeTab"
   ></app-upcomming-booking>
 
   <!-- Past Bookings Table -->
   <app-past-booking
     [activeTab]="activeTab"
+    [totalBookings]="totalPagePast()"
+    [pageSize]="pageSize"
+    [currentPage]="currentPageUpcoming()"
     [bookings]="pastBookings()"
+    (currentPageChange)="changePastBookingPage($event)"
   ></app-past-booking>
 
   <!-- Flight Status Alert -->

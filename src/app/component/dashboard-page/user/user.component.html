@@ -1,11 +1,4 @@
-<div class="p-6 drawer drawer-end">
-  <input
-    #drawerResetPassword
-    id="password-reset-drawer"
-    type="checkbox"
-    class="drawer-toggle"
-  />
-
+<div class="p-6">
   <!-- Header -->
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">User Management</h1>
@@ -49,6 +42,7 @@
           <th>Last Name</th>
           <th>Email</th>
           <th>Phone</th>
+          <th>Role</th>
           <th>Timezone</th>
           <th>Actions</th>
         </tr>
@@ -61,36 +55,76 @@
           <td>{{ user.email }}</td>
           <td>{{ user.phone_number }}</td>
           <td>
-            <div class="badge badge-primary">
-              {{ user.timezone }}
+            <div
+              class="badge"
+              [ngClass]="
+                user.role === 'admin' ? 'badge-primary' : 'badge-secondary'
+              "
+            >
+              {{ user.role }}
             </div>
           </td>
           <td>
+            {{ user.timezone }}
+          </td>
+          <td>
             <div class="flex gap-2">
-              <button
-                class="btn btn-sm btn-info"
-                (click)="viewUserDetails(user)"
-              >
-                View
-              </button>
-              <button class="btn btn-sm btn-warning" (click)="editUser(user)">
-                Edit
-              </button>
+              <div class="drawer drawer-end w-fit">
+                <input
+                  #drawerViewBookings
+                  id="view-bookings-drawer"
+                  type="checkbox"
+                  class="drawer-toggle"
+                />
+                <div class="drawer-content">
+                  <label
+                    for="view-bookings-drawer"
+                    class="btn btn-sm btn-info drawer-button "
+                    (click)="viewUserBookings(user.user_id)"
+                  >
+                    View
+                  </label>
+                </div>
+                <ng-container
+                  *ngTemplateOutlet="drawerSideViewBookings"
+                ></ng-container>
+              </div>
+
               <label
-                for="password-reset-drawer"
-                class="password-reset-drawer btn-error btn btn-sm drawer-button btn-primary"
-                (click)="resetPassword(user.user_id); $event.stopPropagation()"
+                for="change-role-drawer"
+                class="change-role-drawer btn btn-sm btn-warning"
+                (click)="editRoleUser(user)"
               >
-                Reset Password
+                Edit Role
               </label>
+
+              <div class="drawer drawer-end w-fit">
+                <input
+                  #drawerResetPassword
+                  id="password-reset-drawer"
+                  type="checkbox"
+                  class="drawer-toggle"
+                />
+
+                <div class="drawer-content">
+                  <label
+                    for="password-reset-drawer"
+                    class="password-reset-drawer btn-error btn btn-sm drawer-button btn-primary t"
+                    (click)="resetPassword(user.user_id)"
+                  >
+                    Reset Password
+                  </label>
+                </div>
+
+                <ng-container *ngTemplateOutlet="drawerSideResetPassword">
+                </ng-container>
+              </div>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <ng-container *ngTemplateOutlet="drawerSideResetPassword"> </ng-container>
 </div>
 
 <div class="toast toast-top toast-end">
@@ -117,7 +151,7 @@
 
 <ng-template #drawerSideResetPassword>
   <!-- Password Reset Drawer -->
-  <div class="drawer-side">
+  <div class="drawer-side drawer-side-common">
     <label for="password-reset-drawer" class="drawer-overlay"></label>
     <div class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
       <h3 class="font-bold text-lg mb-4">Reset Password</h3>
@@ -158,6 +192,59 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #drawerSideViewBookings>
+  <div class="drawer-side drawer-side-common">
+    <label for="view-bookings-drawer" class="drawer-overlay"></label>
+    <div class="menu p-4 w-96 min-h-full bg-base-200 text-base-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">User Bookings</h3>
+        <button
+          class="btn btn-sm btn-circle"
+          (click)="closeViewDrawer(); $event.stopPropagation()"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Flight</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let booking of userBookings">
+              <td>{{ booking.booking_id }}</td>
+              <td>{{ booking.flight_number }}</td>
+              <td>{{ booking.departure_date | date }}</td>
+              <td>
+                <div
+                  class="badge"
+                  [ngClass]="{
+                    'badge-success': booking.status === 'confirmed',
+                    'badge-warning': booking.status === 'pending',
+                    'badge-error': booking.status === 'cancelled'
+                  }"
+                >
+                  {{ booking.status }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!userBookings?.length" class="text-center py-4">
+        <p>No bookings found for this user</p>
+      </div>
     </div>
   </div>
 </ng-template>

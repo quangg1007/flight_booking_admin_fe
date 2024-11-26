@@ -14,6 +14,14 @@ export class BookingComponent {
   upcomingBookings = signal<any[]>([]);
   pastBookings = signal<any[]>([]);
 
+  pageSize = 10;
+
+  currentPageUpcoming = signal<number>(1);
+  totalPageUpcomming = signal<number>(1);
+
+  currentPagePast = signal<number>(1);
+  totalPagePast = signal<number>(1);
+
   user_id: number = 0;
 
   activeTab: 'upcoming' | 'past' = 'upcoming';
@@ -29,32 +37,18 @@ export class BookingComponent {
   }
 
   setUpUpcomingPastBookings() {
-    this.bookingService.getBookingByUserId(13).subscribe((bookingData) => {
-      console.log(bookingData);
-      const now = new Date();
-
-      const filteredBookings = bookingData.reduce(
-        (acc: any, booking: any) => {
-          const legs = booking.itinerary.legs;
-          const lastLeg = legs[legs.length - 1];
-          const lastArrivalTime = new Date(lastLeg.arrival_time);
-
-          if (lastArrivalTime > now) {
-            acc.upcoming.push(booking);
-          } else {
-            acc.past.push(booking);
-          }
-
-          return acc;
-        },
-        { upcoming: [], past: [] }
+    this.bookingService.getUpcomingBookings(0).subscribe((bookingData) => {
+      this.upcomingBookings.set(bookingData.bookings);
+      this.totalPageUpcomming.set(
+        Math.round(bookingData.total / this.pageSize)
       );
-
-      console.log(JSON.stringify(filteredBookings.past[0]));
-
-      this.upcomingBookings.set(filteredBookings.upcoming);
-      this.pastBookings.set(filteredBookings.past);
     });
+    this.bookingService
+      .getPastBookings(0, this.currentPagePast(), this.pageSize)
+      .subscribe((bookingData) => {
+        this.pastBookings.set(bookingData.bookings);
+        this.totalPagePast.set(Math.round(bookingData.total / this.pageSize));
+      });
   }
 
   downloadTicket() {
@@ -84,6 +78,28 @@ export class BookingComponent {
       .updateBooking(bookingData.booking_id, bookingData.booking_data)
       .subscribe((booking) => {
         console.log('booking', booking);
+      });
+  }
+
+  changePastBookingPage(page: number) {
+    this.currentPagePast.update(() => page);
+    console.log('page', page);
+    this.bookingService
+      .getPastBookings(0, this.currentPagePast(), this.pageSize)
+      .subscribe((bookingData) => {
+        console.log('bookingData', bookingData);
+        this.pastBookings.set(bookingData.bookings);
+      });
+  }
+
+  changeUpcomingBookingPage(page: number) {
+    this.currentPageUpcoming.set(page);
+    console.log('page', page);
+    this.bookingService
+      .getUpcomingBookings(0, this.currentPageUpcoming(), this.pageSize)
+      .subscribe((bookingData) => {
+        console.log('bookingData', bookingData);
+        this.upcomingBookings.set(bookingData.bookings);
       });
   }
 }
