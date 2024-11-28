@@ -14,7 +14,7 @@ const routes: Routes = [
   {
     path: '',
     component: DashboardPageComponent,
-    canActivate: [AuthGuard, RoleGuard],
+    canActivate: [RoleGuard, AuthGuard],
     data: {
       expectedRole: 'admin',
     },

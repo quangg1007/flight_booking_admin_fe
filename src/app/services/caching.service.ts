@@ -7,8 +7,9 @@ import { CacheEntry } from '../models/caching.model';
 })
 export class CachingService {
   private readonly keywordTTL = new Map<string, number>([
-    ['bookings/upcoming', 300000], // 5 minutes
+    ['bookings/upcoming', 180000], // 3 minutes
     ['bookings/past', 180000], // 3 minutes
+    ['bookings/user', 180000], // 3 minutes
   ]);
   constructor() {}
 

@@ -1,5 +1,7 @@
 import { Component, ElementRef, signal, viewChildren } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { BookingService } from 'src/app/services/booking.service';
 
 @Component({
@@ -14,7 +16,7 @@ export class BookingComponent {
   upcomingBookings = signal<any[]>([]);
   pastBookings = signal<any[]>([]);
 
-  pageSize = 10;
+  pageSize = signal<number>(10);
 
   currentPageUpcoming = signal<number>(1);
   totalPageUpcomming = signal<number>(1);
@@ -24,28 +26,127 @@ export class BookingComponent {
 
   user_id: number = 0;
 
-  activeTab: 'upcoming' | 'past' = 'upcoming';
+  activeTab = signal<'upcoming' | 'past'>('upcoming');
   ticketUrl =
     'https://c8.alamy.com/comp/2AFH8GT/vector-boarding-pass-modern-airline-ticket-for-a-flight-2AFH8GT.jpg'; // or image URL
 
-  constructor(private router: Router, private bookingService: BookingService) {}
+  searchBookingForm!: FormGroup;
+
+  constructor(
+    private router: Router,
+    private bookingService: BookingService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
-    console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
-
+    this.initBookingSearchForm();
     this.setUpUpcomingPastBookings();
   }
 
   setUpUpcomingPastBookings() {
-    this.bookingService.getUpcomingBookings(0).subscribe((bookingData) => {
-      this.upcomingBookings.set(bookingData.bookings);
-      this.totalPageUpcomming.set(Math.ceil(bookingData.total / this.pageSize));
-    });
     this.bookingService
-      .getPastBookings(0, this.currentPagePast(), this.pageSize)
+      .getUpcomingBookings(0, this.currentPageUpcoming(), this.pageSize())
+      .subscribe((bookingData) => {
+        console.log('bookingData', bookingData);
+        this.upcomingBookings.set(bookingData.bookings);
+        this.totalPageUpcomming.set(
+          Math.ceil(bookingData.total / this.pageSize())
+        );
+        this.setUpSearch();
+      });
+    this.bookingService
+      .getPastBookings(0, this.currentPagePast(), this.pageSize())
       .subscribe((bookingData) => {
         this.pastBookings.set(bookingData.bookings);
-        this.totalPagePast.set(Math.ceil(bookingData.total / this.pageSize));
+        this.totalPagePast.set(Math.ceil(bookingData.total / this.pageSize()));
+      });
+  }
+
+  initBookingSearchForm() {
+    this.searchBookingForm = this.fb.group({
+      search: [''],
+      dateFilterType: ['specific'], // default to specific date
+      specificDate: [''],
+      startDate: [''],
+      endDate: [''],
+      sortBy: [''],
+      sortOrder: [''],
+    });
+  }
+
+  setUpSearch() {
+    this.setUpSearchByCriteria('search');
+    this.setUpSearchByCriteria('dateFilterType');
+    this.setUpSearchByCriteria('specificDate');
+    this.setUpSearchByCriteria('startDate');
+    this.setUpSearchByCriteria('endDate');
+    this.setUpSearchByCriteria('sortBy');
+    this.setUpSearchByCriteria('sortOrder');
+  }
+
+  setUpSearchByCriteria(field: string) {
+    this.searchBookingForm
+      .get(field)!
+      .valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(() => {
+          console.log('change');
+          let search = this.searchBookingForm.get('search')!.value;
+          let specificDate = this.searchBookingForm.get('specificDate')!.value;
+          let startDate = this.searchBookingForm.get('startDate')!.value;
+          let endDate = this.searchBookingForm.get('endDate')!.value;
+          let sortBy = this.searchBookingForm.get('sortBy')!.value;
+          let sortOrder = this.searchBookingForm.get('sortOrder')!.value;
+          if (this.activeTab() === 'upcoming') {
+            console.log('upcomming');
+            return this.bookingService.getBookingByField(
+              {
+                search,
+                specificDate,
+                startDate,
+                endDate,
+                sortBy,
+                activeTab: this.activeTab(),
+                sortOrder,
+              },
+              this.currentPageUpcoming(),
+              this.pageSize()
+            );
+          } else {
+            console.log('past');
+            return this.bookingService.getBookingByField(
+              {
+                search,
+                specificDate,
+                startDate,
+                endDate,
+                sortBy,
+                activeTab: this.activeTab(),
+                sortOrder,
+              },
+              this.currentPagePast(),
+              this.pageSize()
+            );
+          }
+        })
+      )
+      .subscribe((booking_data) => {
+        console.log('booking_data', booking_data);
+        if (this.activeTab() === 'upcoming') {
+          this.upcomingBookings.update(() => {
+            console.log('booking_data.bookings', booking_data.bookings);
+            return booking_data.bookings;
+          });
+          this.totalPageUpcomming.update(() =>
+            Math.ceil(booking_data.total / this.pageSize())
+          );
+        } else {
+          this.pastBookings.update(() => booking_data.bookings);
+          this.totalPagePast.update(() =>
+            Math.ceil(booking_data.total / this.pageSize())
+          );
+        }
       });
   }
 
@@ -83,7 +184,7 @@ export class BookingComponent {
     this.currentPagePast.update(() => page);
     console.log('page', page);
     this.bookingService
-      .getPastBookings(0, this.currentPagePast(), this.pageSize)
+      .getPastBookings(0, this.currentPagePast(), this.pageSize())
       .subscribe((bookingData) => {
         console.log('bookingData', bookingData);
         this.pastBookings.set(bookingData.bookings);
@@ -94,10 +195,24 @@ export class BookingComponent {
     this.currentPageUpcoming.set(page);
     console.log('page', page);
     this.bookingService
-      .getUpcomingBookings(0, this.currentPageUpcoming(), this.pageSize)
+      .getUpcomingBookings(0, this.currentPageUpcoming(), this.pageSize())
       .subscribe((bookingData) => {
         console.log('bookingData', bookingData);
         this.upcomingBookings.set(bookingData.bookings);
       });
+  }
+
+  changeActiveTab(tab: 'upcoming' | 'past') {
+    this.searchBookingForm.reset({
+      search: '',
+      activeTab: 'upcoming',
+      dateFilterType: 'specific',
+      specificDate: '',
+      startDate: '',
+      endDate: '',
+      sortBy: '',
+      sortOrder: 'Sort Order',
+    });
+    this.activeTab.set(tab);
   }
 }

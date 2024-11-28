@@ -7,10 +7,14 @@
   <table class="table table-zebra w-full drawer-content">
     <thead>
       <tr>
+        <th>ID</th>
+        <th>Booking Date</th>
         <th>Flight</th>
         <th>Date & Time</th>
         <th>Route</th>
+        <th>No.Passenger</th>
         <th>Status</th>
+        <th>User</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -20,6 +24,17 @@
         (click)="toggleFlightDetails(i)"
         class="cursor-pointer hover:bg-base-200"
       >
+        <td>{{ booking.booking_id }}</td>
+
+        <td>
+          <div>
+            {{ booking.booking_date | shortDate }}
+          </div>
+          <div class="text-sm opacity-50">
+            {{ booking.booking_date | timeFormat }}
+          </div>
+        </td>
+
         <td>
           <div class="flex items-center space-x-3">
             <div class="avatar">
@@ -55,17 +70,30 @@
 
         <td>{{ formatedDepDes()[i] }}</td>
 
+        <td>{{ booking.noPassengers }}/100</td>
+
         <td>
           <div
-            [ngClass]="{
-              'badge-success': booking?.status === 'approved',
-              'badge-warning': booking?.status === 'pending',
-              'badge-error': booking?.status === 'rejected',
-              'badge-info': booking?.status === 'complete'
-            }"
             class="badge text-white"
+            [ngClass]="{
+              'badge-success': booking.status === 'complete',
+              'badge-warning': booking.status === 'pending',
+              'badge-secondary': booking.status === 'approved'
+            }"
           >
-            {{ booking?.status }}
+            {{ booking.status }}
+          </div>
+        </td>
+
+        <td>
+          <div class="avatar">
+            <div class="w-8 rounded-full">
+              @if(booking?.user?.profile_picture){
+              <img src="{{ booking?.user?.profile_picture }}" />
+              }@else {
+              <img src="/assets/images/avatar.png" />
+              }
+            </div>
           </div>
         </td>
 
@@ -108,6 +136,55 @@
               ></app-leg-detail>
               }
             </div>
+          </div>
+        </td>
+        <td colspan="3">
+          <div class="flex flex-col space-y-4 overflow-y-auto">
+            @for (passenger of booking.passengers; track $index) {
+            <div
+              class="card shadow-md whitespace-nowrap"
+              [ngClass]="i % 2 === 0 ? 'bg-base-100' : 'bg-base-200'"
+            >
+              <div class="card-body">
+                <h2 class="card-title text-primary">
+                  Passenger Information {{ $index + 1 }}
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Full Name</span>
+                    <span
+                      >{{ passenger.first_name }}
+                      {{ passenger.last_name }}</span
+                    >
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Passport Number</span>
+                    <span>{{ passenger.passport_number }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Nationality</span>
+                    <span>{{ passenger.nationality }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Date of Birth</span>
+                    <span>{{
+                      passenger.date_of_birth | date : "mediumDate"
+                    }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Gender</span>
+                    <span class="capitalize">{{ passenger.gender }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Passport Expiry</span>
+                    <span>{{
+                      passenger.passport_expiry | date : "mediumDate"
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
           </div>
         </td>
       </tr>

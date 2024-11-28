@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, OnInit, Signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  OnInit,
+  Signal,
+} from '@angular/core';
 import { DurationFormatPipe } from 'src/app/pipe/duration-format.pipe';
 import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 export interface LayoverInfo {
@@ -52,7 +59,11 @@ export class LegDetailComponent implements OnInit {
     });
     return layoverData;
   });
-  constructor() {}
+  constructor() {
+    effect(() => {
+      console.log(this.leg());
+    });
+  }
 
   ngOnInit() {}
 }

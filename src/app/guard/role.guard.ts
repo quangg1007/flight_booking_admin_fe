@@ -22,6 +22,7 @@ export class RoleGuard {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
+    console.log('role guard');
     return this.authService.isAuthenticated().pipe(
       switchMap((isAuth) => {
         return this.authService.getDataFromAccessToken().pipe(
@@ -29,7 +30,7 @@ export class RoleGuard {
             console.log(data);
             const expectedRole = route.data['expectedRole'];
 
-            if (!isAuth || data.isAdmin !== expectedRole) {
+            if (!isAuth || data.role !== expectedRole) {
               this.router.navigate(['/login']);
               return false;
             }

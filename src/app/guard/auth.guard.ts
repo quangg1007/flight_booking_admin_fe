@@ -26,9 +26,10 @@ export class AuthGuard {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
+    console.log('auth guard');
     return this.authService.isAuthenticated().pipe(
       switchMap((isAuth) => {
-        console.log(isAuth);
+        console.log('isAuth', isAuth);
         if (isAuth) {
           return of(true);
         }

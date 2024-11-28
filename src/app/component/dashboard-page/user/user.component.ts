@@ -1,15 +1,22 @@
 import {
   Component,
-  computed,
   effect,
   ElementRef,
   OnInit,
   signal,
   viewChild,
+  viewChildren,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { BookingService } from 'src/app/services/booking.service';
 import { UserService } from 'src/app/services/user.service';
 
 export interface UserResponse {
@@ -51,20 +58,29 @@ export class UserComponent implements OnInit {
 
   userBookings: any[] = [];
 
+  totalBookings = signal<number>(1);
+  pageSize = signal<number>(10);
+  currentPage = signal<number>(1);
+
   constructor(
     private _fb: FormBuilder,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private bookingService: BookingService
   ) {
     this.initResetPasswordForm();
   }
 
   ngOnInit(): void {
     this.initSearchUserForm();
-    this.userService.getAllUsers().subscribe((users) => {
-      this.userResponse.set(users);
-      this.setUpSearch();
-    });
+    this.userService
+      .getAllUsers(this.currentPage(), this.pageSize())
+      .subscribe((users) => {
+        console.log('users', users);
+        this.totalBookings.set(Math.ceil(users.total / this.pageSize()));
+        this.userResponse.set(users);
+        this.setUpSearch();
+      });
   }
 
   initSearchUserForm() {
@@ -90,22 +106,34 @@ export class UserComponent implements OnInit {
           let fullNameOrEmail: string = '';
           if (field === 'role') {
             if (!value) {
-              return this.userService.getAllUsers();
+              return this.userService.getAllUsers(
+                this.currentPage(),
+                this.pageSize()
+              );
             } else {
               role = value;
-              return this.userService.searchUserByRole(role);
+              return this.userService.searchUserByRole(
+                role,
+                this.currentPage(),
+                this.pageSize()
+              );
             }
           } else if (field === 'search') {
             fullNameOrEmail = value;
             if (!fullNameOrEmail || fullNameOrEmail.trim().length === 0) {
-              return this.userService.getAllUsers();
+              return this.userService.getAllUsers(
+                this.currentPage(),
+                this.pageSize()
+              );
             }
             if (fullNameOrEmail.length >= 3) {
               const formattedValue = fullNameOrEmail
                 .replace(/\s+/g, '-')
                 .toLowerCase();
               return this.userService.searchUserByEmailOrFullname(
-                formattedValue
+                formattedValue,
+                this.currentPage(),
+                this.pageSize()
               );
             }
           }
@@ -149,6 +177,7 @@ export class UserComponent implements OnInit {
   }
 
   closeViewDrawer() {
+    this.userBookings = [];
     this.viewBookingsDrawer()!.nativeElement.checked = false;
   }
 
@@ -195,5 +224,44 @@ export class UserComponent implements OnInit {
 
   viewUserBookings(user_id: string) {
     console.log('Viewing bookings for user:', user_id);
+    this.bookingService
+      .getBookingByUserId(user_id)
+      .pipe(
+        tap((bookings) => {
+          this.userBookings = bookings.map((booking: any) => {
+            const date = booking.itinerary.legs[0].departure_time;
+            const itinerary = `${booking.itinerary.legs[0].origin_name} - ${
+              booking.itinerary.legs[booking.itinerary.legs.length - 1]
+                .destination_name
+            } `;
+            return {
+              booking_id: booking.booking_id,
+              itinerary,
+              itinerary_id: booking.itinerary.itinerary_id,
+              no_passenger: booking.noPassengers,
+              date,
+              status: booking.status,
+            };
+          });
+        })
+      )
+      .subscribe();
+  }
+
+  changePage(page: number) {
+    this.currentPage.update(() => page);
+    this.userService
+      .getAllUsers(this.currentPage(), this.pageSize())
+      .subscribe((users) => {
+        console.log('page', this.currentPage());
+        this.totalBookings.set(users.total);
+        this.userResponse.set(users);
+      });
+  }
+
+  getPagesArray(): number[] {
+    return Array(this.totalBookings())
+      .fill(0)
+      .map((_, i) => i);
   }
 }

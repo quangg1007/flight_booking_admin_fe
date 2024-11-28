@@ -58,11 +58,7 @@ export class PastBookingComponent {
 
   expandedIndex: number = -1;
 
-  ngOnInit() {
-    effect(() => {
-      console.log('currentPage', this.currentPage());
-    });
-  }
+  ngOnInit() {}
 
   toggleFlightDetails(index: number) {
     this.expandedIndex = this.expandedIndex === index ? -1 : index;

@@ -78,8 +78,10 @@
                 />
                 <div class="drawer-content">
                   <label
+                    [attr.user_id]="user?.user_id"
+                    #viewBtn
                     for="view-bookings-drawer"
-                    class="btn btn-sm btn-info drawer-button "
+                    class="btn btn-sm btn-info drawer-button text-white"
                     (click)="viewUserBookings(user.user_id)"
                   >
                     View
@@ -92,7 +94,7 @@
 
               <label
                 for="change-role-drawer"
-                class="change-role-drawer btn btn-sm btn-warning"
+                class="change-role-drawer btn btn-sm btn-warning text-white"
                 (click)="editRoleUser(user)"
               >
                 Edit Role
@@ -109,7 +111,7 @@
                 <div class="drawer-content">
                   <label
                     for="password-reset-drawer"
-                    class="password-reset-drawer btn-error btn btn-sm drawer-button btn-primary t"
+                    class="password-reset-drawer btn-error btn btn-sm drawer-button btn-primary text-white"
                     (click)="resetPassword(user.user_id)"
                   >
                     Reset Password
@@ -124,6 +126,37 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Add this after your bookings table -->
+    <div class="flex justify-center mt-4">
+      <div class="join">
+        <button
+          class="join-item btn btn-sm"
+          [disabled]="currentPage() === 1"
+          (click)="changePage(currentPage() - 1)"
+        >
+          «
+        </button>
+
+        <ng-container *ngFor="let page of getPagesArray(); let i = index">
+          <button
+            class="join-item btn btn-sm"
+            [class.btn-active]="currentPage() === i + 1"
+            (click)="changePage(i + 1)"
+          >
+            {{ i + 1 }}
+          </button>
+        </ng-container>
+
+        <button
+          class="join-item btn btn-sm"
+          [disabled]="currentPage() === totalBookings()"
+          (click)="changePage(currentPage() + 1)"
+        >
+          »
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -149,8 +182,8 @@
   </div>
 </dialog>
 
+<!-- Password Reset Drawer -->
 <ng-template #drawerSideResetPassword>
-  <!-- Password Reset Drawer -->
   <div class="drawer-side drawer-side-common">
     <label for="password-reset-drawer" class="drawer-overlay"></label>
     <div class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
@@ -199,7 +232,7 @@
 <ng-template #drawerSideViewBookings>
   <div class="drawer-side drawer-side-common">
     <label for="view-bookings-drawer" class="drawer-overlay"></label>
-    <div class="menu p-4 w-96 min-h-full bg-base-200 text-base-content">
+    <div class="menu p-4 w-[800px] min-h-full bg-base-200 text-base-content">
       <div class="flex justify-between items-center mb-4">
         <h3 class="font-bold text-lg">User Bookings</h3>
         <button
@@ -215,7 +248,9 @@
           <thead>
             <tr>
               <th>Booking ID</th>
-              <th>Flight</th>
+              <th>Itinerary</th>
+              <th>Itinerary ID</th>
+              <th>No.Passenger</th>
               <th>Date</th>
               <th>Status</th>
             </tr>
@@ -223,15 +258,17 @@
           <tbody>
             <tr *ngFor="let booking of userBookings">
               <td>{{ booking.booking_id }}</td>
-              <td>{{ booking.flight_number }}</td>
-              <td>{{ booking.departure_date | date }}</td>
+              <td>{{ booking.itinerary }}</td>
+              <td>{{ booking.itinerary_id }}</td>
+              <th>{{ booking.no_passenger }}</th>
+              <td>{{ booking.date | date }}</td>
               <td>
                 <div
-                  class="badge"
+                  class="badge text-white"
                   [ngClass]="{
-                    'badge-success': booking.status === 'confirmed',
+                    'badge-success': booking.status === 'complete',
                     'badge-warning': booking.status === 'pending',
-                    'badge-error': booking.status === 'cancelled'
+                    'badge-secondary': booking.status === 'approved'
                   }"
                 >
                   {{ booking.status }}

@@ -27,15 +27,23 @@ export class UserService {
     });
   }
 
-  searchUserByEmailOrFullname(query: string): Observable<User[]> {
+  searchUserByEmailOrFullname(
+    query: string,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/search/users`, {
-      params: { query },
+      params: { query, page, limit },
     });
   }
 
-  searchUserByRole(role: string): Observable<User[]> {
+  searchUserByRole(
+    role: string,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/search/role`, {
-      params: { role },
+      params: { role, page, limit },
     });
   }
 

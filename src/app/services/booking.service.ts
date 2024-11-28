@@ -16,13 +16,21 @@ export class BookingService {
     );
   }
 
-  getUpcomingBookings(user_id: string|number, page: number = 1, limit: number = 10): Observable<any> {
+  getUpcomingBookings(
+    user_id: string | number,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrl}/bookings/upcoming/${user_id}?page=${page}&limit=${limit}`
     );
   }
 
-  getPastBookings(user_id: string|number, page: number = 1, limit: number = 10): Observable<any> {
+  getPastBookings(
+    user_id: string | number,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrl}/bookings/past/${user_id}?page=${page}&limit=${limit}`
     );
@@ -30,6 +38,16 @@ export class BookingService {
 
   getBookingById(bookingId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/bookings/${bookingId}`);
+  }
+
+  getBookingByField(
+    criteria: Record<string, string | number>,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/bookings/search`, {
+      params: criteria,
+    });
   }
 
   getBookingByUserId(userId: string | number): Observable<any[]> {

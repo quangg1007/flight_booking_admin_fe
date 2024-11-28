@@ -3,50 +3,120 @@
   <div class="tabs tabs-boxed">
     <a
       class="tab tab-lg"
-      [class.tab-active]="activeTab === 'upcoming'"
-      (click)="activeTab = 'upcoming'"
+      [class.tab-active]="activeTab() === 'upcoming'"
+      (click)="changeActiveTab('upcoming')"
       >Upcoming Bookings</a
     >
     <a
       class="tab tab-lg"
-      [class.tab-active]="activeTab === 'past'"
-      (click)="activeTab = 'past'"
+      [class.tab-active]="activeTab() === 'past'"
+      (click)="changeActiveTab('past')"
+
       >Past Bookings</a
     >
   </div>
+
+  <!-- Filters and Search -->
+  <form class="flex gap-4 mb-6" [formGroup]="searchBookingForm">
+    <div class="form-control">
+      <input
+        type="text"
+        formControlName="search"
+        name="search"
+        placeholder="Search Booking ..."
+        class="input input-bordered w-64"
+      />
+    </div>
+
+    <div class="flex gap-2 items-center">
+      <!-- Toggle between specific date and range -->
+      <select class="select select-bordered" formControlName="dateFilterType">
+        <option value="specific">Specific Date</option>
+        <option value="range">Date Range</option>
+      </select>
+
+      <!-- Specific Date Input -->
+      <div
+        class="form-control"
+        *ngIf="searchBookingForm.get('dateFilterType')?.value === 'specific'"
+      >
+        <input
+          type="date"
+          formControlName="specificDate"
+          name="specificDate"
+          class="input input-bordered"
+        />
+      </div>
+
+      <!-- Date Range Inputs -->
+      <ng-container
+        *ngIf="searchBookingForm.get('dateFilterType')?.value === 'range'"
+      >
+        <div class="form-control">
+          <input
+            type="date"
+            formControlName="startDate"
+            name="startDate"
+            class="input input-bordered"
+          />
+        </div>
+        <span class="self-center">to</span>
+        <div class="form-control">
+          <input
+            type="date"
+            formControlName="endDate"
+            name="endDate"
+            class="input input-bordered"
+          />
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Sort Options -->
+    <select
+      class="select select-bordered"
+      formControlName="sortBy"
+      name="sortBy"
+    >
+      <option value="">Sort By</option>
+      <option value="booking_date">Booking Date</option>
+      <option value="noPassengers">Capacity</option>
+      <option value="total_price">Price</option>
+    </select>
+
+    <!-- Sort Order -->
+    <select
+      class="select select-bordered"
+      formControlName="sortOrder"
+      name="sortOrder"
+    >
+      <option value="">Sort Order</option>
+      <option value="ASC">Ascending</option>
+      <option value="DESC">Descending</option>
+    </select>
+  </form>
 
   <!-- Upcoming Bookings Table -->
   <app-upcomming-booking
     [bookings]="upcomingBookings()"
     [totalBookings]="totalPageUpcomming()"
-    [pageSize]="pageSize"
+    [pageSize]="pageSize()"
     [currentPage]="currentPageUpcoming()"
     (bookingsChanged)="deleteBooking($event)"
     (BookingDetailChange)="bookingDetailChange($event)"
     (currentPageChange)="changeUpcomingBookingPage($event)"
-    [activeTab]="activeTab"
+    [activeTab]="activeTab()"
   ></app-upcomming-booking>
 
   <!-- Past Bookings Table -->
   <app-past-booking
-    [activeTab]="activeTab"
+    [activeTab]="activeTab()"
     [totalBookings]="totalPagePast()"
-    [pageSize]="pageSize"
+    [pageSize]="pageSize()"
     [currentPage]="currentPageUpcoming()"
     [bookings]="pastBookings()"
     (currentPageChange)="changePastBookingPage($event)"
   ></app-past-booking>
-
-  <!-- Flight Status Alert -->
-  <div class="alert alert-info shadow-lg" *ngIf="activeTab === 'upcoming'">
-    <div>
-      <i class="fas fa-info-circle"></i>
-      <span
-        >Flight VN123 is scheduled to depart on time. Please arrive at the
-        airport at least 2 hours before departure.</span
-      >
-    </div>
-  </div>
 </div>
 
 <dialog id="ticket_modal" class="modal">
