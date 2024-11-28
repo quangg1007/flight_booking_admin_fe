@@ -11,7 +11,6 @@
       class="tab tab-lg"
       [class.tab-active]="activeTab() === 'past'"
       (click)="changeActiveTab('past')"
-
       >Past Bookings</a
     >
   </div>
@@ -98,6 +97,7 @@
 
   <!-- Upcoming Bookings Table -->
   <app-upcomming-booking
+    [isLoading]="isLoading()"
     [bookings]="upcomingBookings()"
     [totalBookings]="totalPageUpcomming()"
     [pageSize]="pageSize()"
@@ -110,6 +110,7 @@
 
   <!-- Past Bookings Table -->
   <app-past-booking
+    [isLoading]="isLoading()"
     [activeTab]="activeTab()"
     [totalBookings]="totalPagePast()"
     [pageSize]="pageSize()"

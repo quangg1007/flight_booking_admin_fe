@@ -32,6 +32,47 @@
     </select> -->
   </form>
 
+  @if (isLoading()) {
+  <!-- Add this before the main table and show it conditionally when loading -->
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Avatar</th>
+        <th>Timezone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let i of [1, 2, 3, 4, 5]">
+        <!-- Show 5 skeleton rows -->
+        <td><div class="skeleton h-4 w-16"></div></td>
+        <td><div class="skeleton h-4 w-24"></div></td>
+        <td><div class="skeleton h-4 w-24"></div></td>
+        <td><div class="skeleton h-4 w-40"></div></td>
+        <td><div class="skeleton h-4 w-28"></div></td>
+        <td><div class="skeleton h-4 w-16"></div></td>
+        <td>
+          <div class="skeleton w-8 h-8 rounded-full"></div>
+        </td>
+        <td><div class="skeleton h-4 w-20"></div></td>
+        <td>
+          <div class="flex gap-2">
+            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton h-8 w-16"></div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  }@else {
   <!-- Users Table -->
   <div class="overflow-x-auto">
     <table class="table w-full drawer-content">
@@ -43,6 +84,7 @@
           <th>Email</th>
           <th>Phone</th>
           <th>Role</th>
+          <th>Avatar</th>
           <th>Timezone</th>
           <th>Actions</th>
         </tr>
@@ -62,6 +104,18 @@
               "
             >
               {{ user.role }}
+            </div>
+          </td>
+
+          <td>
+            <div class="avatar">
+              <div class="w-8 rounded-full">
+                @if(user.profile_picture){
+                <img src="{{ user.profile_picture }}" />
+                }@else {
+                <img src="/assets/images/avatar.png" />
+                }
+              </div>
             </div>
           </td>
           <td>
@@ -158,6 +212,7 @@
       </div>
     </div>
   </div>
+  }
 </div>
 
 <div class="toast toast-top toast-end">

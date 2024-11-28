@@ -25,6 +25,7 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
   styleUrl: './past-booking.component.css',
 })
 export class PastBookingComponent {
+  isLoading = input.required<boolean>();
   activeTab = input<'upcoming' | 'past'>();
 
   bookings = input.required<any[]>();

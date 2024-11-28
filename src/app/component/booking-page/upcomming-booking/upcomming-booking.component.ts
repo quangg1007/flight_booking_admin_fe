@@ -30,6 +30,7 @@ import { BookingDetailComponent } from '../booking-detail/booking-detail.compone
   styleUrls: ['./upcomming-booking.component.css'],
 })
 export class UpcommingBookingComponent {
+  isLoading = input.required<boolean>();
   cancelButtons = viewChildren<ElementRef<HTMLButtonElement>>('cancelBtn');
   selectedBookingId: string | null = null;
   selectedBooking: any;
@@ -84,6 +85,8 @@ export class UpcommingBookingComponent {
       });
     });
   }
+
+  ngOnInit(): void {}
 
   showModal(booking_id: string | null) {
     this.selectedBookingId = booking_id;

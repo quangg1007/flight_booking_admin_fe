@@ -32,6 +32,7 @@ export interface User {
   phone_number: string;
   role: string;
   timezone: string;
+  profile_picture: string;
 }
 
 @Component({
@@ -40,6 +41,7 @@ export interface User {
   styleUrls: ['./user.component.css'],
 })
 export class UserComponent implements OnInit {
+  isLoading = signal<boolean>(true);
   userResponse = signal<UserResponse>({} as UserResponse);
 
   resetPasswordDrawer = viewChild<ElementRef>('drawerResetPassword');
@@ -80,6 +82,7 @@ export class UserComponent implements OnInit {
         this.totalBookings.set(Math.ceil(users.total / this.pageSize()));
         this.userResponse.set(users);
         this.setUpSearch();
+        this.isLoading.set(false);
       });
   }
 
@@ -102,6 +105,8 @@ export class UserComponent implements OnInit {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((value) => {
+          this.isLoading.set(true);
+
           let role: string = '';
           let fullNameOrEmail: string = '';
           if (field === 'role') {
@@ -142,6 +147,8 @@ export class UserComponent implements OnInit {
       )
       .subscribe((users) => {
         this.userResponse.update(() => users);
+        this.isLoading.set(false);
+
         console.log('users: ', users);
       });
   }

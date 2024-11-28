@@ -10,6 +10,8 @@ import { BookingService } from 'src/app/services/booking.service';
   styleUrls: ['./booking.component.css'],
 })
 export class BookingComponent {
+  isLoading = signal<boolean>(true);
+
   modifyButtonArray = viewChildren<ElementRef>('.booking-detail-drawer');
 
   bookings = signal<any[]>([]); // Array to store bookings
@@ -44,6 +46,8 @@ export class BookingComponent {
   }
 
   setUpUpcomingPastBookings() {
+    this.isLoading.set(true);
+
     this.bookingService
       .getUpcomingBookings(0, this.currentPageUpcoming(), this.pageSize())
       .subscribe((bookingData) => {
@@ -52,6 +56,8 @@ export class BookingComponent {
         this.totalPageUpcomming.set(
           Math.ceil(bookingData.total / this.pageSize())
         );
+        this.isLoading.set(false);
+
         this.setUpSearch();
       });
     this.bookingService
@@ -59,6 +65,7 @@ export class BookingComponent {
       .subscribe((bookingData) => {
         this.pastBookings.set(bookingData.bookings);
         this.totalPagePast.set(Math.ceil(bookingData.total / this.pageSize()));
+        this.isLoading.set(false);
       });
   }
 
@@ -91,6 +98,8 @@ export class BookingComponent {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap(() => {
+          this.isLoading.set(true);
+
           console.log('change');
           let search = this.searchBookingForm.get('search')!.value;
           let specificDate = this.searchBookingForm.get('specificDate')!.value;
@@ -141,11 +150,13 @@ export class BookingComponent {
           this.totalPageUpcomming.update(() =>
             Math.ceil(booking_data.total / this.pageSize())
           );
+          this.isLoading.set(false);
         } else {
           this.pastBookings.update(() => booking_data.bookings);
           this.totalPagePast.update(() =>
             Math.ceil(booking_data.total / this.pageSize())
           );
+          this.isLoading.set(false);
         }
       });
   }
@@ -211,7 +222,7 @@ export class BookingComponent {
       startDate: '',
       endDate: '',
       sortBy: '',
-      sortOrder: 'Sort Order',
+      sortOrder: '',
     });
     this.activeTab.set(tab);
   }
