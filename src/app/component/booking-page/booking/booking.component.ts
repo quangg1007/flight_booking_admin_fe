@@ -2,6 +2,7 @@ import { Component, ElementRef, signal, viewChildren } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { BookingSearchData } from 'src/app/models/booking.model';
 import { BookingService } from 'src/app/services/booking.service';
 
 @Component({
@@ -34,14 +35,9 @@ export class BookingComponent {
 
   searchBookingForm!: FormGroup;
 
-  constructor(
-    private router: Router,
-    private bookingService: BookingService,
-    private fb: FormBuilder
-  ) {}
+  constructor(private router: Router, private bookingService: BookingService) {}
 
   ngOnInit(): void {
-    this.initBookingSearchForm();
     this.setUpUpcomingPastBookings();
   }
 
@@ -58,7 +54,7 @@ export class BookingComponent {
         );
         this.isLoading.set(false);
 
-        this.setUpSearch();
+        // this.setUpSearch();
       });
     this.bookingService
       .getPastBookings(0, this.currentPagePast(), this.pageSize())
@@ -69,21 +65,8 @@ export class BookingComponent {
       });
   }
 
-  initBookingSearchForm() {
-    this.searchBookingForm = this.fb.group({
-      search: [''],
-      dateFilterType: ['specific'], // default to specific date
-      specificDate: [''],
-      startDate: [''],
-      endDate: [''],
-      sortBy: [''],
-      sortOrder: [''],
-    });
-  }
-
   setUpSearch() {
     this.setUpSearchByCriteria('search');
-    this.setUpSearchByCriteria('dateFilterType');
     this.setUpSearchByCriteria('specificDate');
     this.setUpSearchByCriteria('startDate');
     this.setUpSearchByCriteria('endDate');
@@ -225,5 +208,16 @@ export class BookingComponent {
       sortOrder: '',
     });
     this.activeTab.set(tab);
+  }
+
+  upcomingBookingsChange(upcomingBookingsData: BookingSearchData) {
+    this.upcomingBookings.set(upcomingBookingsData.bookings);
+    this.totalPageUpcomming.set(upcomingBookingsData.total);
+    this.isLoading.set(upcomingBookingsData.isLoading);
+  }
+  pastBookingsChange(pastBookingData: BookingSearchData) {
+    this.pastBookings.set(pastBookingData.bookings);
+    this.totalPagePast.set(pastBookingData.total);
+    this.isLoading.set(pastBookingData.isLoading);
   }
 }

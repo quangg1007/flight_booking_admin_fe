@@ -20,3 +20,9 @@ export interface BookingModel {
   passengers: PassengerModel[];
   total_price: number;
 }
+
+export interface BookingSearchData {
+  bookings: any[];
+  total: number;
+  isLoading: boolean;
+}

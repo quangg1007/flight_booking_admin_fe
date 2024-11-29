@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { FilterStats } from 'src/app/models/cardFilter.model';
+import { FlightSearchService } from 'src/app/services/flightSearch.service';
 
 export interface Flight {
   flight_id: string;
@@ -25,6 +27,15 @@ export class FlightsComponent implements OnInit {
   selectedStatus: string = '';
   selectedDate: string = '';
 
+  filterStats = signal<FilterStats>({} as FilterStats);
+  isLoadingFlight: boolean = false;
+  filteredFlights: any[] = [];
+  allFlights: any[] = [];
+
+  currentPage = 1;
+  flightListResult = signal<any[]>([]);
+  pageSize = 10;
+
   airlines: string[] = [
     'Emirates',
     'Qatar Airways',
@@ -32,7 +43,7 @@ export class FlightsComponent implements OnInit {
     'Lufthansa',
   ];
 
-  constructor() {
+  constructor(private _flightSearchService: FlightSearchService) {
     // Mock data - replace with actual API call
     this.flights = [
       {
@@ -100,4 +111,20 @@ export class FlightsComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  filterStatsChange(filterStats: FilterStats) {
+    this.isLoadingFlight = true;
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    setTimeout(() => {
+      this.filteredFlights = this._flightSearchService.filterFlights(
+        this.allFlights,
+        filterStats
+      );
+
+      this.currentPage = 1;
+      this.flightListResult.set(this.filteredFlights.slice(0, this.pageSize));
+      this.isLoadingFlight = false;
+    }, 1000);
+  }
 }

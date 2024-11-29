@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UserComponent } from './user/user.component';
 import { AdminComponent } from './admin/admin.component';
-import { FlightsComponent } from './flights/flights.component';
+import { FlightsComponent } from './flight-page/flights/flights.component';
 import { NotificationComponent } from './notification/notification.component';
 import { BookingComponent } from '../booking-page/booking/booking.component';
 import { DashboardPageComponent } from './dashboard-page/dashboard-page.component';
