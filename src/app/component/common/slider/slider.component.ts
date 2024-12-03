@@ -16,7 +16,8 @@ import { Component, computed, input, output, signal } from '@angular/core';
 export class SliderComponent {
   min = input.required<number>();
   max = input.required<number>();
-  label = input.required<string>();
+  label = input<string>();
+  type = input.required<string>();
 
   dataChange = output<number>();
 
@@ -32,7 +33,20 @@ export class SliderComponent {
         return { value: data };
       }),
       translate: (value: number, label: LabelType): string => {
-        return this.label() + value;
+        if (this.type() === 'duration') {
+          if (value < 60) {
+            return `${value}m`;
+          }
+          const hours = Math.floor(value / 60);
+          const remainingMinutes = value % 60;
+          return remainingMinutes > 0
+            ? `${hours}h ${remainingMinutes}m`
+            : `${hours}h`;
+        }
+        if (this.type() === 'price') {
+          return `$${value}`;
+        }
+        return '';
       },
       showSelectionBar: true,
     };

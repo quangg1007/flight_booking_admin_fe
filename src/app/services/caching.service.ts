@@ -10,6 +10,7 @@ export class CachingService {
     ['bookings/upcoming', 180000], // 3 minutes
     ['bookings/past', 180000], // 3 minutes
     ['bookings/user', 180000], // 3 minutes
+    ['flights', 180000], // 3 minutes,
   ]);
   constructor() {}
 

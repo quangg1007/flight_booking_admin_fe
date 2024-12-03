@@ -46,3 +46,41 @@ export interface FlightModel {
   arrivalAirport: string;
   leg: FlightLegModel;
 }
+
+export interface Flight {
+  flight_id: string;
+  airline: string;
+  departure: string;
+  destination: string;
+  departure_time: Date;
+  arrival_time: Date;
+  capacity: number;
+  duration_in_minutes: number;
+  available_seats: number;
+  status: 'on_time' | 'delayed' | 'canceled';
+  price: number;
+}
+
+export interface TransformedFlight {
+  flight_id: string;
+  airline: string;
+  departure: string;
+  destination: string;
+  departure_time: string;
+  arrival_time: string;
+  available_seats: number;
+  duration_in_minutes: number;
+  capacity: number;
+  status: 'on_time' | 'delayed' | 'canceled';
+}
+
+export interface TransformedItinerary {
+  itinerary_id: string;
+  airline: string;
+  departure: string;
+  destination: string;
+  departure_time: string;
+  arrival_time: string;
+  duration: string;
+  stops: number;
+}

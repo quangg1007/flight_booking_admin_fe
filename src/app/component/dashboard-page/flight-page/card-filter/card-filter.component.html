@@ -1,6 +1,9 @@
 <div
-  class="flex flex-col mx-auto mb-10 w-full min-w-16 text-xs bg-white rounded-xl border border-black border-solid"
+  class="flex flex-col mx-auto mb-10 w-full min-w-80 text-xs bg-white rounded-xl border border-black border-solid"
 >
+  @if( filterStats()) {
+  <!-- Itinerary -->
+  @if(searchType() == 'itinerary') {
   <!-- Stops -->
   <section class="flex flex-col w-auto">
     <!-- Stops -->
@@ -24,11 +27,11 @@
                 [value]="'direct'"
                 (change)="onStopSelect($event)"
                 class="checkbox"
-                [disabled]="!filterStats.stopPrices.direct.isPresent"
+                [disabled]="!filterStats().stopPrices!.direct.isPresent"
               />
               <span class="self-stretch my-auto">Non Stop</span>
             </div>
-            <span>{{ filterStats.stopPrices.direct.formattedPrice }}</span>
+            <span>{{ filterStats().stopPrices!.direct.formattedPrice }}</span>
           </li>
           <li
             class="flex gap-10 justify-between items-start px-6 py-2 w-auto text-sm text-black"
@@ -40,11 +43,11 @@
                 [value]="'one'"
                 (change)="onStopSelect($event)"
                 class="checkbox"
-                [disabled]="!filterStats.stopPrices.one.isPresent"
+                [disabled]="!filterStats().stopPrices!.one.isPresent"
               />
               <span class="self-stretch my-auto">1 Stop</span>
             </div>
-            <span>{{ filterStats.stopPrices.one.formattedPrice }}</span>
+            <span>{{ filterStats().stopPrices!.one.formattedPrice }}</span>
           </li>
           <li
             class="flex gap-10 justify-between items-start px-6 py-2 w-auto text-sm text-black"
@@ -56,11 +59,13 @@
                 [value]="'twoOrMore'"
                 (change)="onStopSelect($event)"
                 class="checkbox"
-                [disabled]="!filterStats.stopPrices.twoOrMore.isPresent"
+                [disabled]="!filterStats().stopPrices!.twoOrMore.isPresent"
               />
               <span class="self-stretch my-auto">2 Stops+</span>
             </div>
-            <span>{{ filterStats.stopPrices.twoOrMore.formattedPrice }}</span>
+            <span>{{
+              filterStats().stopPrices!.twoOrMore.formattedPrice
+            }}</span>
           </li>
         </ul>
       </div>
@@ -70,6 +75,7 @@
   <div class="divider"></div>
 
   <!-- Flight Time -->
+  @if(filterStats().timeRange) {
   <section class="flex flex-col w-auto">
     <div class="collapse collapse-arrow collapse-open">
       <input type="checkbox" />
@@ -82,7 +88,9 @@
       <div class="collapse-content">
         <div>
           <div class="gap-2 self-stretch px-4 py-2 w-full text-base text-black">
-            <strong>Departure from {{ filterStats.airports[0].city }}</strong>
+            <strong
+              >Departure from {{ filterStats().airports![0].city }}</strong
+            >
           </div>
           <div class="custom-slider px-4 w-full">
             <app-date-slider
@@ -98,7 +106,7 @@
           <div
             class="gap-2.5 self-stretch px-4 py-2 w-full text-base text-black"
           >
-            <strong>Landing at {{ filterStats.airports[1].city }}</strong>
+            <strong>Landing at {{ filterStats().airports![1].city }}</strong>
           </div>
           <div class="custom-slider px-4 py-2 w-full">
             <app-date-slider
@@ -112,8 +120,9 @@
       </div>
     </div>
   </section>
-
   <div class="divider"></div>
+  }
+
 
   <!-- Airline -->
   <div class="collapse collapse-arrow collapse-open">
@@ -168,9 +177,9 @@
       <div class="collapse-content">
         <div class="custom-slider px-4 py-2 w-full">
           <app-slider
-            [min]="filterStats.priceRange.minPrice"
-            [max]="filterStats.priceRange.maxPrice"
-            [label]="'$'"
+            [min]="filterStats().priceRange!.minPrice"
+            [max]="filterStats().priceRange!.maxPrice"
+            [type]="'price'"
             (dataChange)="handlePriceChange($event)"
           ></app-slider>
         </div>
@@ -250,4 +259,33 @@
       </div>
     </div>
   </section>
+  }
+
+  <!-- Flight -->
+  @if(searchType() == 'flight' ){
+  <!-- Check min max -->
+  @if(filterStats().duration.min && filterStats().duration.max){
+  <!-- Duration -->
+  <section class="flex flex-col w-auto">
+    <div class="collapse collapse-arrow collapse-open">
+      <input type="checkbox" />
+      <div
+        class="collapse-title flex justify-between items-center px-6 py-3 w-full text-xl font-bold text-black whitespace-nowrap"
+      >
+        Duration
+      </div>
+
+      <div class="collapse-content">
+        <div class="custom-slider px-4 py-2 w-full">
+          <app-slider
+            [min]="filterStats().duration!.min || 0"
+            [max]="filterStats().duration!.max || 0"
+            [type]="'duration'"
+            (dataChange)="handleDurationChange($event)"
+          ></app-slider>
+        </div>
+      </div>
+    </div>
+  </section>
+  } } }
 </div>

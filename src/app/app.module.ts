@@ -18,6 +18,14 @@ import { CacheInterceptor } from './interceptor/cache.interceptor';
 import { ErrorInterceptor } from './interceptor/error.interceptor';
 import { RetryInterceptor } from './interceptor/retry.interceptor';
 import { TokenInterceptor } from './interceptor/token.interceptor';
+import { FlightService } from './services/flight.service';
+import { AuthService } from './services/auth.service';
+import { CachingService } from './services/caching.service';
+import { DashboardService } from './services/dashboard.service';
+import { FlightSearchService } from './services/flightSearch.service';
+import { TimezoneService } from './services/timezone.service';
+import { UserService } from './services/user.service';
+import { TokenService } from './services/token.service';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent],
@@ -30,6 +38,15 @@ import { TokenInterceptor } from './interceptor/token.interceptor';
   ],
   providers: [
     BookingService,
+    FlightService,
+    AuthService,
+    BookingService,
+    CachingService,
+    DashboardService,
+    FlightSearchService,
+    TimezoneService,
+    TokenService,
+    UserService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

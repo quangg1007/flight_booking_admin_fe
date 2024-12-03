@@ -19,6 +19,9 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { DashboardPageComponent } from './dashboard-page/dashboard-page.component';
 import { CardFilterComponent } from './flight-page/card-filter/card-filter.component';
 import { BookingSearchComponent } from '../booking-page/booking-search/booking-search.component';
+import { FlightSearchComponent } from './flight-page/flight-search/flight-search.component';
+import { FlightTableComponent } from './flight-page/flight-table/flight-table.component';
+import { LoadingPageComponent } from '../common/loading-page/loading-page.component';
 
 @NgModule({
   imports: [
@@ -36,8 +39,12 @@ import { BookingSearchComponent } from '../booking-page/booking-search/booking-s
     DurationFormatPipe,
     TimeFormatPipe,
     ShortDatePipe,
+    FlightSearchComponent,
     CardFilterComponent,
     BookingSearchComponent,
+    FlightTableComponent,
+    FlightTableComponent,
+    LoadingPageComponent
   ],
   declarations: [
     DashboardComponent,

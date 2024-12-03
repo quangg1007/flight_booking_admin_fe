@@ -6,10 +6,10 @@ export interface Airlines {
 }
 
 export interface Duration {
-    min: number;
-    max: number;
-    multiCityMin: number;
-    multiCityMax: number;
+  min: number;
+  max: number;
+  multiCityMin?: number;
+  multiCityMax?: number;
 }
 
 export interface Stop {
@@ -54,10 +54,11 @@ export interface TimeRange {
 }
 
 export interface FilterStats {
+  searchType: string;
   duration: Duration;
-  airports: Location[];
-  carriers: Airlines[];
-  stopPrices: Stop;
-  timeRange: TimeRange;
-  priceRange: PriceRange;
+  airports?: Location[];
+  carriers?: Airlines[];
+  stopPrices?: Stop;
+  timeRange?: TimeRange;
+  priceRange?: PriceRange;
 }

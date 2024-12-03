@@ -4,7 +4,7 @@ import {
   Options,
 } from '@angular-slider/ngx-slider';
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, effect, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-date-slider',
@@ -25,15 +25,30 @@ export class DateSliderComponent {
 
   options!: Options;
 
-  ngOnInit(): void {
-    const dateRange = computed(() => this.createDateRange());
+  // Set default values if inputs are undefined
+  defaultDate = new Date().toISOString();
+  minTimeValueInit = this.minTime() || this.defaultDate;
+  maxTimeValueInit = this.maxTime() || this.defaultDate;
 
-    this.minTimeValue = dateRange()[0].getTime();
+  dateRange = computed(() => {
+    if (this.minTimeValueInit && this.maxTimeValueInit) {
+      console.log('minTimeValueInit', this.minTimeValueInit);
+      console.log('maxTimeValueInit', this.maxTimeValueInit);
+      return this.createDateRange();
+    }
+    return [];
+  });
 
-    this.maxTimeValue = dateRange()[dateRange().length - 1].getTime();
+  constructor() {
+    effect(() => {
+      console.log('min Time input', this.minTime());
+      console.log('max Time input', this.maxTime());
+    });
 
     this.options = {
-      stepsArray: dateRange().map((date: Date) => {
+      floor: new Date(this.minTime()).getTime(),
+      ceil: new Date(this.maxTime()).getTime(),
+      stepsArray: this.dateRange().map((date: Date) => {
         return { value: date.getTime() };
       }),
       translate: (value: number, label: LabelType): string => {
@@ -52,6 +67,16 @@ export class DateSliderComponent {
       enforceStep: true,
       noSwitching: true,
     };
+  }
+
+  ngOnInit(): void {
+    // Set default values if inputs are undefined
+
+    // Create date range only when we have valid values
+
+    this.minTimeValue = this.dateRange()[0].getTime();
+
+    this.maxTimeValue = this.dateRange()[this.dateRange().length - 1].getTime();
   }
   onChange(event: any): void {
     this.minTimeValueChanged.emit(this.minTimeValue);

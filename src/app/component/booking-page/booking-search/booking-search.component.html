@@ -36,8 +36,8 @@
       <div class="form-control">
         <input
           type="date"
-          formControlName="startDate"
-          name="startDate"
+          formControlName="departDate"
+          name="departDate"
           class="input input-bordered"
         />
       </div>
@@ -54,7 +54,12 @@
   </div>
 
   <!-- Sort Options -->
-  <select class="select select-bordered" formControlName="sortBy" name="sortBy">
+  <select
+    class="select select-bordered"
+    formControlName="sortBy"
+    name="sortBy"
+    (change)="onSortChange($event)"
+  >
     <option value="">Sort By</option>
     <option value="booking_date">Booking Date</option>
     <option value="noPassengers">Capacity</option>
@@ -62,6 +67,7 @@
   </select>
 
   <!-- Sort Order -->
+  @if(this.searchBookingForm.get('sortBy')?.value !== ''){
   <select
     class="select select-bordered"
     formControlName="sortOrder"
@@ -71,4 +77,5 @@
     <option value="ASC">Ascending</option>
     <option value="DESC">Descending</option>
   </select>
+  }
 </form>

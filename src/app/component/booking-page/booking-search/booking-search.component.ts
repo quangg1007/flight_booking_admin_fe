@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, OnInit, output, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { BookingService } from 'src/app/services/booking.service';
@@ -33,10 +40,15 @@ export class BookingSearchComponent implements OnInit {
     isLoading: boolean;
   }>();
 
-  constructor(
-    private bookingService: BookingService,
-    private fb: FormBuilder
-  ) {}
+  constructor(private bookingService: BookingService, private fb: FormBuilder) {
+    effect(() => {
+      if (this.activeTab() === 'upcoming') {
+        this.initBookingSearchForm();
+      } else {
+        this.initBookingSearchForm();
+      }
+    });
+  }
 
   ngOnInit() {
     this.initBookingSearchForm();
@@ -48,7 +60,7 @@ export class BookingSearchComponent implements OnInit {
       search: [''],
       dateFilterType: ['specific'], // default to specific date
       specificDate: [''],
-      startDate: [''],
+      departDate: [''],
       endDate: [''],
       sortBy: [''],
       sortOrder: [''],
@@ -58,7 +70,7 @@ export class BookingSearchComponent implements OnInit {
   setUpSearch() {
     this.setUpSearchByCriteria('search');
     this.setUpSearchByCriteria('specificDate');
-    this.setUpSearchByCriteria('startDate');
+    this.setUpSearchByCriteria('departDate');
     this.setUpSearchByCriteria('endDate');
     this.setUpSearchByCriteria('sortBy');
     this.setUpSearchByCriteria('sortOrder');
@@ -74,7 +86,7 @@ export class BookingSearchComponent implements OnInit {
           console.log('change');
           let search = this.searchBookingForm.get('search')!.value;
           let specificDate = this.searchBookingForm.get('specificDate')!.value;
-          let startDate = this.searchBookingForm.get('startDate')!.value;
+          let departDate = this.searchBookingForm.get('departDate')!.value;
           let endDate = this.searchBookingForm.get('endDate')!.value;
           let sortBy = this.searchBookingForm.get('sortBy')!.value;
           let sortOrder = this.searchBookingForm.get('sortOrder')!.value;
@@ -89,7 +101,7 @@ export class BookingSearchComponent implements OnInit {
               {
                 search,
                 specificDate,
-                startDate,
+                departDate,
                 endDate,
                 sortBy,
                 activeTab: this.activeTab(),
@@ -109,7 +121,7 @@ export class BookingSearchComponent implements OnInit {
               {
                 search,
                 specificDate,
-                startDate,
+                departDate,
                 endDate,
                 sortBy,
                 activeTab: this.activeTab(),
@@ -137,5 +149,12 @@ export class BookingSearchComponent implements OnInit {
           });
         }
       });
+  }
+
+  onSortChange(event: Event) {
+    const sort = (event.target as HTMLSelectElement).value;
+    if (sort === '') {
+      this.searchBookingForm.get('sortOrder')!.setValue('ASC');
+    }
   }
 }

@@ -81,6 +81,8 @@ export class BookingDetailComponent {
     );
 
     this.bookingDataChange.emit(passengers_data);
+
+    this.closeDrawer();
   }
 
   closeDrawer() {
