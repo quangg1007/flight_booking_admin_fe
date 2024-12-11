@@ -75,7 +75,10 @@
   <div class="divider"></div>
 
   <!-- Flight Time -->
-  @if(filterStats().timeRange) {
+  @if(minTimeDeparture().length > 0 && maxTimeDeparture().length > 0 &&
+  minTimeLanding().length > 0 && maxTimeLanding().length > 0 &&
+  airportData().length > 0 ) {
+
   <section class="flex flex-col w-auto">
     <div class="collapse collapse-arrow collapse-open">
       <input type="checkbox" />
@@ -88,9 +91,7 @@
       <div class="collapse-content">
         <div>
           <div class="gap-2 self-stretch px-4 py-2 w-full text-base text-black">
-            <strong
-              >Departure from {{ filterStats().airports![0].city }}</strong
-            >
+            <strong>Departure from {{ filterStats().airports[0].city }}</strong>
           </div>
           <div class="custom-slider px-4 w-full">
             <app-date-slider
@@ -106,7 +107,7 @@
           <div
             class="gap-2.5 self-stretch px-4 py-2 w-full text-base text-black"
           >
-            <strong>Landing at {{ filterStats().airports![1].city }}</strong>
+            <strong>Landing at {{ filterStats().airports[1].city }}</strong>
           </div>
           <div class="custom-slider px-4 py-2 w-full">
             <app-date-slider
@@ -122,7 +123,6 @@
   </section>
   <div class="divider"></div>
   }
-
 
   <!-- Airline -->
   <div class="collapse collapse-arrow collapse-open">
@@ -263,6 +263,8 @@
 
   <!-- Flight -->
   @if(searchType() == 'flight' ){
+
+  <!-- Flight Time -->
   <!-- Check min max -->
   @if(filterStats().duration.min && filterStats().duration.max){
   <!-- Duration -->

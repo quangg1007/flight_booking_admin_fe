@@ -16,7 +16,6 @@ import { Component, computed, input, output, signal } from '@angular/core';
 export class SliderComponent {
   min = input.required<number>();
   max = input.required<number>();
-  label = input<string>();
   type = input.required<string>();
 
   dataChange = output<number>();

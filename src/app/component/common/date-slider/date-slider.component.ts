@@ -4,7 +4,14 @@ import {
   Options,
 } from '@angular-slider/ngx-slider';
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, input, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 @Component({
   selector: 'app-date-slider',
@@ -14,8 +21,8 @@ import { Component, computed, effect, input, output } from '@angular/core';
   styleUrl: './date-slider.component.css',
 })
 export class DateSliderComponent {
-  minTime = input.required<string>();
-  maxTime = input.required<string>();
+  minTime = input<string>();
+  maxTime = input<string>();
 
   minTimeValueChanged = output<number>();
   maxTimeValueChanged = output<number>();
@@ -25,16 +32,39 @@ export class DateSliderComponent {
 
   options!: Options;
 
+  isLoad = signal<boolean>(true);
+
   // Set default values if inputs are undefined
   defaultDate = new Date().toISOString();
-  minTimeValueInit = this.minTime() || this.defaultDate;
-  maxTimeValueInit = this.maxTime() || this.defaultDate;
+
+  minTimeValueInit = computed(() => {
+    console.log('minTime', this.minTime());
+    if (!this.minTime()) {
+      return this.minTime();
+    } else {
+      console.log('defaultDate', this.defaultDate);
+      return this.defaultDate;
+    }
+  });
+
+  maxTimeValueInit = computed(() => {
+    console.log('maxTime', this.maxTime());
+
+    if (!this.maxTime()) {
+      return this.maxTime();
+    } else {
+      return this.defaultDate;
+    }
+  });
 
   dateRange = computed(() => {
-    if (this.minTimeValueInit && this.maxTimeValueInit) {
-      console.log('minTimeValueInit', this.minTimeValueInit);
-      console.log('maxTimeValueInit', this.maxTimeValueInit);
-      return this.createDateRange();
+    if (
+      this.minTime() &&
+      this.maxTime() &&
+      this.minTime()!.length > 0 &&
+      this.maxTime()!.length > 0
+    ) {
+      return this.createDateRange(this.minTime()!, this.maxTime()!);
     }
     return [];
   });
@@ -44,48 +74,48 @@ export class DateSliderComponent {
       console.log('min Time input', this.minTime());
       console.log('max Time input', this.maxTime());
     });
-
-    this.options = {
-      floor: new Date(this.minTime()).getTime(),
-      ceil: new Date(this.maxTime()).getTime(),
-      stepsArray: this.dateRange().map((date: Date) => {
-        return { value: date.getTime() };
-      }),
-      translate: (value: number, label: LabelType): string => {
-        const date = new Date(value);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-
-        return `${day}/${month} - ${hours}:${minutes}`;
-      },
-      hideLimitLabels: true,
-      hidePointerLabels: false,
-      draggableRange: true,
-      enforceRange: false,
-      enforceStep: true,
-      noSwitching: true,
-    };
   }
-
   ngOnInit(): void {
-    // Set default values if inputs are undefined
+    if (this.dateRange().length > 0) {
+      this.options = {
+        floor: new Date(this.minTimeValueInit()!).getTime(),
+        ceil: new Date(this.maxTimeValueInit()!).getTime(),
+        stepsArray: this.dateRange().map((date: Date) => {
+          return { value: date.getTime() };
+        }),
+        translate: (value: number, label: LabelType): string => {
+          const date = new Date(value);
+          const day = date.getDate().toString().padStart(2, '0');
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const hours = date.getHours().toString().padStart(2, '0');
+          const minutes = date.getMinutes().toString().padStart(2, '0');
 
-    // Create date range only when we have valid values
+          return `${day}/${month} - ${hours}:${minutes}`;
+        },
+        hideLimitLabels: true,
+        hidePointerLabels: false,
+        draggableRange: true,
+        enforceRange: false,
+        enforceStep: true,
+        noSwitching: true,
+      };
 
-    this.minTimeValue = this.dateRange()[0].getTime();
+      this.minTimeValue = this.dateRange()[0].getTime();
 
-    this.maxTimeValue = this.dateRange()[this.dateRange().length - 1].getTime();
+      this.maxTimeValue =
+        this.dateRange()[this.dateRange().length - 1].getTime();
+
+      this.isLoad.set(false);
+    }
   }
   onChange(event: any): void {
     this.minTimeValueChanged.emit(this.minTimeValue);
     this.maxTimeValueChanged.emit(this.maxTimeValue);
   }
 
-  createDateRange() {
-    const minDate = new Date(this.minTime());
-    const maxDate = new Date(this.maxTime());
+  createDateRange(minDateInput: string, maxDateInput: string) {
+    const minDate = new Date(minDateInput);
+    const maxDate = new Date(maxDateInput);
 
     const range: Date[] = [];
     let current = new Date(minDate);

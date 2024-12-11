@@ -56,9 +56,9 @@ export interface TimeRange {
 export interface FilterStats {
   searchType: string;
   duration: Duration;
-  airports?: Location[];
-  carriers?: Airlines[];
-  stopPrices?: Stop;
-  timeRange?: TimeRange;
-  priceRange?: PriceRange;
+  airports: Location[];
+  carriers: Airlines[];
+  stopPrices: Stop;
+  timeRange: TimeRange;
+  priceRange: PriceRange;
 }

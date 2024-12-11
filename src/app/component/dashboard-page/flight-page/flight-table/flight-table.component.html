@@ -1,5 +1,5 @@
-<div class="flex flex-col justify-center">
-  @if(searchType() === 'flight') {
+<div class="flex flex-col justify-center min-w-[800px]">
+  @if(flightData() ){ @if(!isLoading()){ @if(searchType() === 'flight') {
   <table class="table w-full">
     <thead>
       <tr>
@@ -71,7 +71,6 @@
     </tbody>
   </table>
   }
-
   <!-- Add this after your Flight table -->
   <div class="flex justify-center mt-4">
     <div class="join">
@@ -115,4 +114,37 @@
       </button>
     </div>
   </div>
+  } @else{
+  <div class="flex flex-col items-center justify-center h-96 w-full">
+    <h2>Searching for flights...</h2>
+    <span class="loading loading-spinner h-16 w-16"></span>
+  </div>
+
+  } } @else {
+  <div
+    class="flex flex-col items-center justify-center p-8 text-center min-w-full"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-16 h-16 text-gray-400 mb-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+      />
+    </svg>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">No Flights Found</h3>
+    <p class="text-gray-500 mb-4">
+      We couldn't find any flights matching your search criteria.
+    </p>
+    <p class="text-gray-500">
+      Try adjusting your filters or searching for different dates.
+    </p>
+  </div>
+  }
 </div>

@@ -19,6 +19,7 @@ import { DurationFormatPipe } from '../../../../pipe/duration-format.pipe';
 })
 export class FlightTableComponent implements OnInit {
   data = input.required<any>({});
+  isLoading = input.required<boolean>();
 
   searchType = computed(() => this.data().searchType);
   flightData = computed(() => {

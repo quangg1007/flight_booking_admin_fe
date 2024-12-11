@@ -11,7 +11,9 @@ import {
   Airlines,
   FilterStats,
   Location,
+  PriceRange,
   Stop,
+  TimeRange,
 } from 'src/app/models/cardFilter.model';
 import { debounceTime, distinctUntilChanged, filter, skip } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -81,14 +83,14 @@ export class CardFilterComponent {
           this.airportData.set([]);
           this.airlineData.set([]);
           this.priceData.set(0);
-          this.minTimeDeparture.set('');
-          this.maxTimeDeparture.set('');
-          this.minTimeLanding.set('');
-          this.maxTimeLanding.set('');
+          this.minTimeDeparture.set(new Date().toDateString());
+          this.maxTimeDeparture.set(new Date().toDateString());
+          this.minTimeLanding.set(new Date().toDateString());
+          this.maxTimeLanding.set(new Date().toDateString());
         }
 
         if (this.searchType() === 'itinerary') {
-          this.durationData.set(0);
+          this.durationData.set(this.filterStats().duration.max);
 
           this.minTimeDeparture.set(
             this.filterStats().timeRange!.minTimeDeparture
@@ -124,33 +126,42 @@ export class CardFilterComponent {
   }
 
   handleFilterChange() {
-    if (this.searchType() === 'flight') {
-      this.filterChange.emit({
-        duration: {
-          min: this.filterStats().duration.min,
-          max: this.durationData(),
-        },
-        searchType: this.searchType(),
-      });
-      return;
-    } else {
-      this.filterChange.emit({
-        duration: this.filterStats().duration,
-        airports: this.airportData(),
-        carriers: this.airlineData(),
-        stopPrices: this.stopData(),
-        timeRange: {
-          minTimeDeparture: this.minTimeDeparture(),
-          maxTimeDeparture: this.maxTimeDeparture(),
-          minTimeLanding: this.minTimeLanding(),
-          maxTimeLanding: this.maxTimeLanding(),
-        },
-        priceRange: {
-          minPrice: this.filterStats().priceRange!.minPrice || 0,
-          maxPrice: this.priceData(),
-        },
-        searchType: this.searchType(),
-      });
+    console.log('filterStats', this.filterStats());
+
+    if (this.filterStats()) {
+      if (this.searchType() === 'flight') {
+        this.filterChange.emit({
+          duration: {
+            min: this.filterStats().duration.min,
+            max: this.durationData(),
+          },
+          searchType: this.searchType(),
+          airports: this.filterStats().airports,
+          carriers: this.filterStats().carriers,
+          stopPrices: this.filterStats().stopPrices,
+          timeRange: this.filterStats().timeRange,
+          priceRange: this.filterStats().priceRange,
+        });
+        return;
+      } else {
+        this.filterChange.emit({
+          duration: this.filterStats().duration,
+          airports: this.airportData(),
+          carriers: this.airlineData(),
+          stopPrices: this.stopData(),
+          timeRange: {
+            minTimeDeparture: this.minTimeDeparture(),
+            maxTimeDeparture: this.maxTimeDeparture(),
+            minTimeLanding: this.minTimeLanding(),
+            maxTimeLanding: this.maxTimeLanding(),
+          },
+          priceRange: {
+            minPrice: this.filterStats().priceRange!.minPrice || 0,
+            maxPrice: this.priceData(),
+          },
+          searchType: this.searchType(),
+        });
+      }
     }
   }
 

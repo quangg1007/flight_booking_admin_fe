@@ -5,6 +5,8 @@ import {
   FilterStats,
   Location,
   PriceRange,
+  Stop,
+  TimeRange,
 } from 'src/app/models/cardFilter.model';
 import {
   Flight,
@@ -23,8 +25,7 @@ export class FlightsComponent implements OnInit {
   data = signal<any>({});
 
   filterStats = signal<FilterStats>({} as FilterStats);
-  isLoading = signal<boolean>(false);
-  filteredFlights: any[] = [];
+  isLoading = signal<boolean>(true);
   allFlights: any[] = [];
 
   currentPage = signal<number>(1);
@@ -80,7 +81,19 @@ export class FlightsComponent implements OnInit {
             max: data.statistics.duration.max,
           },
           searchType: this.searchType(),
+          airports: [] as Location[],
+          carriers: [] as Airlines[],
+          stopPrices: {} as Stop,
+          timeRange: {
+            minTimeDeparture: new Date().toDateString(),
+            maxTimeDeparture: new Date().toDateString(),
+            minTimeLanding: new Date().toDateString(),
+            maxTimeLanding: new Date().toDateString(),
+          },
+          priceRange: {} as PriceRange,
         });
+
+        this.isLoading.set(false);
       });
   }
 
@@ -130,6 +143,16 @@ export class FlightsComponent implements OnInit {
               max: data.statistic.duration.max,
             },
             searchType: this.searchType(),
+            airports: [] as Location[],
+            carriers: [] as Airlines[],
+            stopPrices: {} as Stop,
+            timeRange: {
+              minTimeDeparture: new Date().toDateString(),
+              maxTimeDeparture: new Date().toDateString(),
+              minTimeLanding: new Date().toDateString(),
+              maxTimeLanding: new Date().toDateString(),
+            },
+            priceRange: {} as PriceRange,
           });
 
           this.isLoading.set(false);
@@ -145,7 +168,13 @@ export class FlightsComponent implements OnInit {
               max: 100,
             },
             searchType: this.searchType(),
+            airports: [] as Location[],
+            carriers: [] as Airlines[],
+            stopPrices: {} as Stop,
+            timeRange: {} as TimeRange,
+            priceRange: {} as PriceRange,
           });
+          this.isLoading.set(false);
         }
       });
   }
@@ -168,30 +197,33 @@ export class FlightsComponent implements OnInit {
   itinerarySearchResultChange(data: any) {
     this.isLoading.set(true);
 
-    this.searchType.set('itinerary');
+    setTimeout(() => {
+      this.searchType.set('itinerary');
 
-    this.itineararyListResult.set(data.itinerary);
+      this.itineararyListResult.set(data.itinerary);
 
-    this.itineararyListFilter.set(this.itineararyListResult());
+      this.itineararyListFilter.set(this.itineararyListResult());
 
-    const transformedItinerary = data.itinerary.map((flight: any) =>
-      this.transformItineraryData(flight)
-    );
+      const transformedItinerary = data.itinerary.map((flight: any) =>
+        this.transformItineraryData(flight)
+      );
 
-    const firstPage = transformedItinerary.slice(0, this.pageSize());
+      const firstPage = transformedItinerary.slice(0, this.pageSize());
 
-    this.totalPages.set(Math.ceil(data.total / this.pageSize()));
+      this.totalPages.set(Math.ceil(data.total / this.pageSize()));
 
-    console.log('data', this.data());
-    this.data.set({
-      searchType: this.searchType(),
-      data: firstPage,
-      totalPage: this.totalPages(),
-    });
+      this.data.set({
+        searchType: this.searchType(),
+        data: firstPage,
+        totalPage: this.totalPages(),
+      });
 
-    // Set up Filter Stats for Itinerary
-    this.setFilterStats(data.itinerary, data.filterStats);
-    this.isLoading.set(false);
+      console.log('data itinerary', this.data());
+
+      // Set up Filter Stats for Itinerary
+      this.setFilterStats(data.itinerary, data.filterStats);
+      this.isLoading.set(false);
+    }, 1000);
   }
 
   transformItineraryData(apiResponse: any): TransformedItinerary {
@@ -259,7 +291,6 @@ export class FlightsComponent implements OnInit {
 
       console.log('timeRange:', timeRange); // Add this
 
-
       const priceRange: PriceRange = this.getMinMaxPrice(itineraries);
 
       return {
@@ -307,89 +338,87 @@ export class FlightsComponent implements OnInit {
 
   // Setup Filter Stats
   filterStatsChange(filterStats: FilterStats) {
-    this.isLoading.set(true);
     // window.scrollTo({ top: 0, behavior: 'smooth' });
     console.log('filterStats', filterStats);
 
-    if (filterStats.searchType === 'flight') {
-      const maxDuration = filterStats.duration.max;
+    setTimeout(() => {
+      this.isLoading.set(true);
+      if (filterStats.searchType === 'flight') {
+        const maxDuration = filterStats.duration.max;
 
-      this.flightSearchService
-        .getFlightByField(
-          {
-            flightSearch: this.paramsFlightSearch().flightSearch,
-            sortBy: this.paramsFlightSearch().sortBy,
-            sortOrder: this.paramsFlightSearch().sortOrder,
-            durationFilter: maxDuration,
-          },
-          this.currentPage(),
-          this.pageSize()
-        )
-        .subscribe((data) => {
-          this.searchType.set('flight');
-          if (data) {
-            const transformedFlights = data.flights.map((flight: any) =>
-              this.transformFlightData(flight)
-            );
-            this.flights.set(transformedFlights);
-            this.totalPages.set(Math.ceil(data.total / this.pageSize()));
-
-            this.data.update(() => {
-              return {
-                searchType: this.searchType(),
-                data: this.flights(),
-                totalPage: this.totalPages(),
-              };
-            });
-          } else {
-            this.data.set({
-              searchType: this.searchType(),
-              data: [],
-              totalPage: 1,
-            });
-          }
-        });
-    } else {
-      if (this.itineararyListResult()) {
-        this.filteredFlights = this._flightSearchService.filterFlights(
-          this.itineararyListResult(),
-          filterStats
-        );
-
-        this.itineararyListFilter.set(
-          this._flightSearchService.filterFlights(
-            this.itineararyListResult(),
-            filterStats
+        this.flightSearchService
+          .getFlightByField(
+            {
+              flightSearch: this.paramsFlightSearch().flightSearch,
+              sortBy: this.paramsFlightSearch().sortBy,
+              sortOrder: this.paramsFlightSearch().sortOrder,
+              durationFilter: maxDuration,
+            },
+            this.currentPage(),
+            this.pageSize()
           )
-        );
+          .subscribe((data) => {
+            this.searchType.set('flight');
+            if (data) {
+              const transformedFlights = data.flights.map((flight: any) =>
+                this.transformFlightData(flight)
+              );
+              this.flights.set(transformedFlights);
+              this.totalPages.set(Math.ceil(data.total / this.pageSize()));
 
-        console.log('filtered Flights', this.itineararyListFilter());
+              this.data.update(() => {
+                return {
+                  searchType: this.searchType(),
+                  data: this.flights(),
+                  totalPage: this.totalPages(),
+                };
+              });
+            } else {
+              this.data.set({
+                searchType: this.searchType(),
+                data: [],
+                totalPage: 1,
+              });
+            }
+          });
+      } else {
+        if (this.itineararyListResult()) {
+          this.itineararyListFilter.set(
+            this._flightSearchService.filterFlights(
+              this.itineararyListResult(),
+              filterStats
+            )
+          );
 
-        this.currentPage.set(1);
-        this.totalPages.set(
-          Math.ceil(this.itineararyListFilter().length / this.pageSize())
-        );
+          console.log('filtered Flights', this.itineararyListFilter());
 
-        const filterItinearary = this.itineararyListFilter().slice(
-          0,
-          this.pageSize()
-        );
+          this.currentPage.set(1);
+          this.totalPages.set(
+            Math.ceil(this.itineararyListFilter().length / this.pageSize())
+          );
 
-        console.log('filter Itinearary', filterItinearary);
+          const filterItinearary = this.itineararyListFilter().slice(
+            0,
+            this.pageSize()
+          );
 
-        const transformedItinerary = filterItinearary.map((itinerary: any) =>
-          this.transformItineraryData(itinerary)
-        );
+          console.log('filter Itinearary', filterItinearary);
 
-        this.data.set({
-          searchType: this.searchType(),
-          data: transformedItinerary,
-          totalPage: this.totalPages(),
-        });
+          const transformedItinerary = filterItinearary.map((itinerary: any) =>
+            this.transformItineraryData(itinerary)
+          );
 
-        this.isLoading.set(false);
+          this.data.set({
+            searchType: this.searchType(),
+            data: transformedItinerary,
+            totalPage: this.totalPages(),
+          });
+
+          this.isLoading.set(false);
+        }
       }
-    }
+      this.isLoading.set(false);
+    }, 1000);
   }
 
   flightPageChange(page: number) {

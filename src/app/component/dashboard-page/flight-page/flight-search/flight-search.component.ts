@@ -72,10 +72,10 @@ export class FlightSearchComponent implements OnInit {
       // Flight search controls
       departureAirport: ['Hanoi'],
       departureAirport_skyID: ['HAN'],
-      arrivalAirport: ['Incheon International Airport'],
-      arrivalAirport_skyID: ['ICN'],
+      arrivalAirport: ['Tokyo Narita'],
+      arrivalAirport_skyID: ['NRT'],
       dateFilterType: ['specific'],
-      departDate: ['2024-11-30'],
+      departDate: ['2024-12-12'],
       returnDate: [''],
     });
   }
