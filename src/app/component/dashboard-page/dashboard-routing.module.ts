@@ -9,6 +9,7 @@ import { BookingComponent } from '../booking-page/booking/booking.component';
 import { DashboardPageComponent } from './dashboard-page/dashboard-page.component';
 import { AuthGuard } from 'src/app/guard/auth.guard';
 import { RoleGuard } from 'src/app/guard/role.guard';
+import { MessageComponent } from './message/message.component';
 
 const routes: Routes = [
   {
@@ -35,6 +36,10 @@ const routes: Routes = [
       {
         path: 'admin',
         component: AdminComponent,
+      },
+      {
+        path: 'message',
+        component: MessageComponent,
       },
       {
         path: 'flight',

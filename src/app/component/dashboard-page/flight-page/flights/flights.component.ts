@@ -30,7 +30,7 @@ export class FlightsComponent implements OnInit {
 
   currentPage = signal<number>(1);
   flightListResult = signal<any[]>([]);
-  pageSize = signal<number>(2);
+  pageSize = signal<number>(20);
 
   totalPages = signal<number>(0);
   searchType = signal<string>('flight');
@@ -137,10 +137,12 @@ export class FlightsComponent implements OnInit {
             };
           });
 
+          console.log('data', data);
+
           this.filterStats.set({
             duration: {
-              min: data.statistic.duration.min,
-              max: data.statistic.duration.max,
+              min: data.statistics.duration.min,
+              max: data.statistics.duration.max,
             },
             searchType: this.searchType(),
             airports: [] as Location[],

@@ -25,7 +25,10 @@ import { DashboardService } from './services/dashboard.service';
 import { FlightSearchService } from './services/flightSearch.service';
 import { TimezoneService } from './services/timezone.service';
 import { UserService } from './services/user.service';
+import { UserServiceMongoDB } from './services/mongoDB/user.service';
 import { TokenService } from './services/token.service';
+import { RoomService } from './services/mongoDB/room.service';
+import { MessageService } from './services/mongoDB/message.service';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent],
@@ -47,6 +50,9 @@ import { TokenService } from './services/token.service';
     TimezoneService,
     TokenService,
     UserService,
+    RoomService,
+    UserServiceMongoDB,
+    MessageService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

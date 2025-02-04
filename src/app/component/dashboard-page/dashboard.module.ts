@@ -22,6 +22,7 @@ import { BookingSearchComponent } from '../booking-page/booking-search/booking-s
 import { FlightSearchComponent } from './flight-page/flight-search/flight-search.component';
 import { FlightTableComponent } from './flight-page/flight-table/flight-table.component';
 import { LoadingPageComponent } from '../common/loading-page/loading-page.component';
+import { MessageComponent } from './message/message.component';
 
 @NgModule({
   imports: [
@@ -50,6 +51,7 @@ import { LoadingPageComponent } from '../common/loading-page/loading-page.compon
     DashboardComponent,
     UserComponent,
     AdminComponent,
+    MessageComponent,
     FlightsComponent,
     NotificationComponent,
     BookingComponent,

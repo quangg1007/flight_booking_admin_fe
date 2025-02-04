@@ -22,8 +22,6 @@ import { UserService } from 'src/app/services/user.service';
 import { validateForm } from 'src/app/utils/validation';
 import { TokenService } from 'src/app/services/token.service';
 import { LoginResponse } from 'src/app/models/auth.model';
-import { CommonModule } from '@angular/common';
-import { AuthService } from 'src/app/services/auth.service';
 import { TimezoneService } from 'src/app/services/timezone.service';
 import { EMAIL_PATTERN, PASSWORD_PATTERN } from 'src/app/utils/auth';
 
@@ -86,6 +84,9 @@ export class LoginComponent implements OnInit, OnDestroy {
           console.log(res);
           if (res.accessToken && res.role && res.timezone) {
             // Save the user data to local storage
+
+            localStorage.setItem('userEmail', res.email);
+
             this.tokenService.setAccessToken(res.accessToken);
             this.timezoneService.setTimezone(res.timezone);
 

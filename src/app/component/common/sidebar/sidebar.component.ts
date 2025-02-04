@@ -36,6 +36,11 @@ export class SidebarComponent {
       label: 'Admin',
     },
     {
+      path: 'message',
+      icon: 'chat',
+      label: 'Message',
+    },
+    {
       path: 'flight',
       icon: 'travel',
       label: 'Flight',
